@@ -1259,6 +1259,16 @@
               youth: -15,
             },
           },
+          {
+            id: "media_attack",
+            name: "Media Criticism",
+            description: "National media criticizes government decisions",
+            effects: {
+              legitimacy: -12,
+              middleClass: -5,
+              youth: -5,
+            },
+          },
         ],
         vi: [
           {
@@ -1297,6 +1307,16 @@
               capitalists: -5,
               middleClass: -10,
               youth: -15,
+            },
+          },
+          {
+            id: "media_attack",
+            name: "Truyền thông chỉ trích",
+            description: "Báo chí quốc gia chỉ trích quyết định của chính phủ",
+            effects: {
+              legitimacy: -12,
+              middleClass: -5,
+              youth: -5,
             },
           },
         ],
@@ -1379,6 +1399,217 @@
       };
 
       function PolicySimulator({ lang }) {
+        // Popup tóm tắt điểm lợi/hại sau khi chọn chính sách
+        const [policySummary, setPolicySummary] = React.useState(null);
+        // Social event popup state
+        const [socialEvent, setSocialEvent] = React.useState(null);
+
+        // Hiển thị điểm lợi/hại và phân tích mâu thuẫn khi chọn chính sách
+        React.useEffect(() => {
+          if (!gameState || !gameState.selectedPolicy) {
+            setPolicySummary(null);
+            return;
+          }
+          const policy = policies.find(
+            (p) => p.id === gameState.selectedPolicy
+          );
+          if (!policy) return;
+          const effects = policy.effects;
+          const benefit = [],
+            harm = [];
+          Object.entries(effects).forEach(([k, v]) => {
+            if (
+              [
+                "workers",
+                "middleClass",
+                "capitalists",
+                "youth",
+                "freelancers",
+              ].includes(k)
+            ) {
+              if (v > 0) benefit.push({ group: k, value: v });
+              if (v < 0) harm.push({ group: k, value: v });
+            }
+          });
+          const analysis = getConflictAnalysis(policy);
+          // Xác định nhóm được lợi nhất và nhóm bị thiệt nhất
+          let mainGroup = analysis.benefitGroup;
+          let lossGroup = analysis.lossGroup;
+          let warning = "";
+          if (analysis.conflictLevel === "High") {
+            warning =
+              lang === "vi"
+                ? `Cảnh báo: Chính sách này chủ yếu phục vụ lợi ích nhóm "${
+                    S[mainGroup] || mainGroup
+                  }", gây thiệt hại lớn cho nhóm "${
+                    S[lossGroup] || lossGroup
+                  }". Mâu thuẫn lợi ích quốc gia–giai cấp rất cao!`
+                : `Warning: This policy mainly benefits "${
+                    S[mainGroup] || mainGroup
+                  }", but greatly harms "${
+                    S[lossGroup] || lossGroup
+                  }". Very high class–nation conflict!`;
+          } else if (analysis.conflictLevel === "Medium") {
+            warning =
+              lang === "vi"
+                ? `Chính sách này có xu hướng ưu tiên lợi ích nhóm "${
+                    S[mainGroup] || mainGroup
+                  }" hơn các nhóm khác.`
+                : `This policy tends to favor "${
+                    S[mainGroup] || mainGroup
+                  }" over other groups.`;
+          } else {
+            warning =
+              lang === "vi"
+                ? "Chính sách này khá cân bằng giữa các nhóm xã hội."
+                : "This policy is relatively balanced among social groups.";
+          }
+          setPolicySummary({
+            name: policy.name,
+            benefit,
+            harm,
+            analysis,
+            warning,
+          });
+          // Tự động ẩn sau 4 giây
+          const timer = setTimeout(() => setPolicySummary(null), 4000);
+          return () => clearTimeout(timer);
+        }, [gameState && gameState.selectedPolicy, lang]);
+
+        // Theo dõi mâu thuẫn xã hội để kích hoạt sự kiện đặc biệt
+        React.useEffect(() => {
+          console.log("PolicySimulator effect:", {
+            selectedPolicy: gameState && gameState.selectedPolicy,
+            gameState,
+            policies,
+          });
+          if (!gameState || !gameState.selectedPolicy) {
+            setPolicySummary(null);
+            return;
+          }
+          const policy = policies.find(
+            (p) => p.id === gameState.selectedPolicy
+          );
+          console.log("Selected policy object:", policy);
+          if (!policy) return;
+          const effects = policy.effects;
+          const benefit = [],
+            harm = [];
+          Object.entries(effects).forEach(([k, v]) => {
+            if (
+              [
+                "workers",
+                "middleClass",
+                "capitalists",
+                "youth",
+                "freelancers",
+              ].includes(k)
+            ) {
+              if (v > 0) benefit.push({ group: k, value: v });
+              if (v < 0) harm.push({ group: k, value: v });
+            }
+          });
+          const analysis = getConflictAnalysis(policy);
+          console.log("Policy analysis:", analysis);
+          setPolicySummary({ name: policy.name, benefit, harm, analysis });
+          // Tự động ẩn sau 4 giây
+          const timer = setTimeout(() => setPolicySummary(null), 4000);
+          return () => clearTimeout(timer);
+        }, [gameState && gameState.selectedPolicy]);
+
+        // Social event popup logic (separate effect)
+        React.useEffect(() => {
+          if (!gameState || !gameState.selectedPolicy) {
+            setSocialEvent(null);
+            return;
+          }
+          const policy = policies.find(
+            (p) => p.id === gameState.selectedPolicy
+          );
+          const analysis = getConflictAnalysis(policy);
+          let event = null;
+          if (analysis && analysis.conflictLevel === "High") {
+            if (analysis.lossGroup === "workers") {
+              event =
+                lang === "vi"
+                  ? {
+                      title: "Phong trào 99%",
+                      desc: "Công nhân phản đối chính sách thiên vị giới chủ. Mâu thuẫn giai cấp bùng nổ!",
+                    }
+                  : {
+                      title: "99% Movement",
+                      desc: "Workers protest policies favoring capitalists. Class conflict erupts!",
+                    };
+            } else if (analysis.lossGroup === "middleClass") {
+              event =
+                lang === "vi"
+                  ? {
+                      title: "Áo Vàng",
+                      desc: "Trung lưu và nông thôn biểu tình chống tăng thuế, phản đối lợi ích quốc gia không công bằng.",
+                    }
+                  : {
+                      title: "Yellow Vests",
+                      desc: "Middle class and rural protest tax hikes, challenge unfair 'national interest'.",
+                    };
+            } else if (analysis.lossGroup === "youth") {
+              event =
+                lang === "vi"
+                  ? {
+                      title: "Biểu tình sinh viên",
+                      desc: "Thanh niên, sinh viên xuống đường phản đối chính sách thiếu minh bạch.",
+                    }
+                  : {
+                      title: "Student Protests",
+                      desc: "Youth and students protest lack of transparency in national policy.",
+                    };
+            }
+          }
+          if (event) setSocialEvent(event);
+          else setSocialEvent(null);
+        }, [gameState, gameState && gameState.selectedPolicy, lang]);
+        // Tính toán mâu thuẫn lợi ích quốc gia–giai cấp cho chính sách được chọn
+        function getConflictAnalysis(policy) {
+          if (!policy) return null;
+          // Nếu chính sách làm một nhóm tăng mạnh, nhóm khác giảm mạnh => mâu thuẫn cao
+          const effects = policy.effects;
+          let maxBenefit = -Infinity,
+            maxLoss = Infinity,
+            benefitGroup = "",
+            lossGroup = "";
+          Object.entries(effects).forEach(([k, v]) => {
+            if (
+              [
+                "workers",
+                "middleClass",
+                "capitalists",
+                "youth",
+                "freelancers",
+              ].includes(k)
+            ) {
+              if (v > maxBenefit) {
+                maxBenefit = v;
+                benefitGroup = k;
+              }
+              if (v < maxLoss) {
+                maxLoss = v;
+                lossGroup = k;
+              }
+            }
+          });
+          const conflictLevel =
+            maxBenefit > 10 && maxLoss < -10
+              ? "High"
+              : maxBenefit > 5 && maxLoss < -5
+              ? "Medium"
+              : "Low";
+          return {
+            conflictLevel,
+            benefitGroup,
+            lossGroup,
+            maxBenefit,
+            maxLoss,
+          };
+        }
         const S = STRINGS[lang];
         const [gameState, setGameState] = React.useState(() => ({
           ...POLICY_SIMULATOR_INITIAL,
@@ -1418,6 +1649,7 @@
               title: policy.name,
               description: policy.description,
               turn: newState.turn,
+              conflictAnalysis: getConflictAnalysis(policy),
             });
 
             newState.selectedPolicy = policy.id;
@@ -1599,7 +1831,23 @@
           setShowResult(false);
         }, []);
 
-        if (showResult) {
+        if (showResult && gameState) {
+          // Phân tích xã hội cuối game
+          let socialComment = "";
+          const dissatisfied = Object.entries(
+            gameState.socialGroups || {}
+          ).filter(([_, v]) => v < 40);
+          if (dissatisfied.length >= 2) {
+            socialComment =
+              lang === "vi"
+                ? "Nhiều nhóm xã hội bất mãn. Mâu thuẫn lợi ích quốc gia–giai cấp cao, nguy cơ phản kháng xã hội!"
+                : "Multiple social groups dissatisfied. High class–nation conflict, risk of social protest!";
+          } else if (gameState.gameWon) {
+            socialComment =
+              lang === "vi"
+                ? "Bạn đã cân bằng tốt lợi ích quốc gia và các giai cấp. Xã hội ổn định!"
+                : "You balanced national and class interests well. Society is stable!";
+          }
           return (
             <div className="card" style={{ gridColumn: "span 12" }}>
               <h3>{S.gameResult}</h3>
@@ -1615,6 +1863,17 @@
                 <p style={{ margin: "0 0 20px 0", color: "var(--muted)" }}>
                   {gameState.gameWon ? S.winCondition : S.loseCondition}
                 </p>
+                {socialComment && (
+                  <div
+                    style={{
+                      color: "#d00",
+                      fontWeight: "bold",
+                      marginBottom: 12,
+                    }}
+                  >
+                    {socialComment}
+                  </div>
+                )}
                 <button className="btn primary" onClick={reset}>
                   {S.playAgain}
                 </button>
@@ -1657,8 +1916,94 @@
               </div>
             </div>
 
+            {/* Popup tóm tắt điểm lợi/hại và phân tích chính sách */}
+            {policySummary && (
+              <div className="modal-backdrop policy-impact-popup">
+                <div className="policy-impact-card">
+                  <div className="policy-impact-name">{policySummary.name}</div>
+                  <div className="policy-impact-benefit-label">
+                    {lang === "vi" ? "Nhóm được lợi:" : "Benefited groups:"}
+                  </div>
+                  <ul className="policy-impact-list">
+                    {policySummary.benefit.length === 0 && (
+                      <li className="policy-impact-none">
+                        {lang === "vi" ? "Không có" : "None"}
+                      </li>
+                    )}
+                    {policySummary.benefit.map((b) => (
+                      <li key={b.group} className="policy-impact-benefit-item">
+                        {S[b.group] || b.group}: +{b.value}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="policy-impact-harm-label">
+                    {lang === "vi" ? "Nhóm bị thiệt hại:" : "Harmed groups:"}
+                  </div>
+                  <ul className="policy-impact-list">
+                    {policySummary.harm.length === 0 && (
+                      <li className="policy-impact-none">
+                        {lang === "vi" ? "Không có" : "None"}
+                      </li>
+                    )}
+                    {policySummary.harm.map((h) => (
+                      <li key={h.group} className="policy-impact-harm-item">
+                        {S[h.group] || h.group}: {h.value}
+                      </li>
+                    ))}
+                  </ul>
+                  <div
+                    style={{ marginTop: 8, color: "#d00", fontWeight: "bold" }}
+                  >
+                    {policySummary.warning}
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Main Game Grid */}
             <div className="simulator-grid">
+              {/* Hiển thị phân tích mâu thuẫn lợi ích quốc gia–giai cấp khi chọn chính sách */}
+              {gameState.selectedPolicy &&
+                (() => {
+                  const policy = policies.find(
+                    (p) => p.id === gameState.selectedPolicy
+                  );
+                  const analysis = getConflictAnalysis(policy);
+                  if (!analysis) return null;
+                  let viLevel =
+                    analysis.conflictLevel === "High"
+                      ? "rất cao"
+                      : analysis.conflictLevel === "Medium"
+                      ? "trung bình"
+                      : "thấp";
+                  return (
+                    <div
+                      className="card"
+                      style={{
+                        gridColumn: "span 12",
+                        background: "#ffeedd",
+                        color: "#222",
+                        marginBottom: 12,
+                      }}
+                    >
+                      <strong>
+                        {lang === "vi"
+                          ? "Phân tích mâu thuẫn lợi ích:"
+                          : "Class–Nation Conflict Analysis:"}
+                      </strong>
+                      <div>
+                        {lang === "vi"
+                          ? `Chính sách này có mức mâu thuẫn: ${viLevel}. Nhóm hưởng lợi: ${
+                              S[analysis.benefitGroup]
+                            }. Nhóm thiệt hại: ${S[analysis.lossGroup]}.`
+                          : `This policy has ${
+                              analysis.conflictLevel
+                            } conflict. Benefited group: ${
+                              S[analysis.benefitGroup]
+                            }. Harmed group: ${S[analysis.lossGroup]}.`}
+                      </div>
+                    </div>
+                  );
+                })()}
               {/* National Indicators Dashboard */}
               <div className="sim-panel indicators-panel">
                 <div className="panel-header">
@@ -1812,6 +2157,15 @@
                   )}
                 </div>
               </div>
+              {/* Popup sự kiện xã hội khi mâu thuẫn lớn */}
+              {socialEvent && (
+                <div className="card social-event-popup">
+                  <strong className="social-event-title">
+                    {socialEvent.title}
+                  </strong>
+                  <div className="social-event-desc">{socialEvent.desc}</div>
+                </div>
+              )}
 
               {/* Policy Choices Panel */}
               <div className="sim-panel policies-panel">
@@ -1821,39 +2175,62 @@
                 </div>
                 <div className="policies-container">
                   <div className="policies-scroll">
-                    {policies.map((policy) => (
-                      <div
-                        key={policy.id}
-                        className={`policy-card ${
-                          gameState.selectedPolicy === policy.id
-                            ? "selected"
-                            : ""
-                        }`}
-                      >
-                        <button
-                          className="policy-btn"
-                          disabled={
-                            gameState.gameEnded ||
-                            gameState.selectedPolicy !== null
-                          }
-                          onClick={() => applyPolicy(policy)}
+                    {policies.map((policy) => {
+                      const isSelected =
+                        gameState && gameState.selectedPolicy === policy.id;
+                      let analysis = null;
+                      if (isSelected) {
+                        analysis = getConflictAnalysis(policy);
+                      }
+                      return (
+                        <div
+                          key={policy.id}
+                          className={`policy-card ${
+                            isSelected ? "selected" : ""
+                          }`}
                         >
-                          <div className="policy-content">
-                            <h4 className="policy-name">{policy.name}</h4>
-                            <p className="policy-description">
-                              {policy.description}
-                            </p>
-                            {gameState.selectedPolicy === policy.id && (
-                              <div className="policy-selected">
-                                <span className="selected-badge">
-                                  {lang === "vi" ? "Đã chọn" : "Selected"}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      </div>
-                    ))}
+                          <button
+                            className="policy-btn"
+                            disabled={
+                              gameState &&
+                              (gameState.gameEnded ||
+                                gameState.selectedPolicy !== null)
+                            }
+                            onClick={() => applyPolicy(policy)}
+                          >
+                            <div className="policy-content">
+                              <h4 className="policy-name">{policy.name}</h4>
+                              <p className="policy-description">
+                                {policy.description}
+                              </p>
+                              {isSelected && (
+                                <>
+                                  <div className="policy-selected">
+                                    <span className="selected-badge">
+                                      {lang === "vi" ? "Đã chọn" : "Selected"}
+                                    </span>
+                                  </div>
+                                  {analysis &&
+                                    analysis.conflictLevel === "High" && (
+                                      <div
+                                        style={{
+                                          color: "#d00",
+                                          fontWeight: "bold",
+                                          marginTop: 8,
+                                        }}
+                                      >
+                                        {lang === "vi"
+                                          ? "Cảnh báo: Mâu thuẫn lợi ích quốc gia–giai cấp rất cao! Nguy cơ xuất hiện phong trào phản kháng xã hội."
+                                          : "Warning: Very high class–nation conflict! Risk of major social protest movements."}
+                                      </div>
+                                    )}
+                                </>
+                              )}
+                            </div>
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Government Response Section */}
