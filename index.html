@@ -1620,6 +1620,28 @@
         const randomEvents = RANDOM_EVENTS[lang];
         const responses = GOVERNMENT_RESPONSES[lang];
 
+        // Update chatbot context when game state changes
+        React.useEffect(() => {
+          if (window.updateChatbotContext) {
+            const currentContext = {
+              currentTurn: gameState.turn,
+              maxTurns: gameState.maxTurns,
+              currentIndicators: gameState.indicators,
+              currentSocialGroups: gameState.socialGroups,
+              selectedPolicy: gameState.selectedPolicy,
+              recentEvents: gameState.events?.slice(0, 3) || [],
+              gameEnded: gameState.gameEnded,
+              gameWon: gameState.gameWon,
+              currentPolicies: policies.map((p) => ({
+                id: p.id,
+                name: p.name,
+                description: p.description,
+              })),
+            };
+            window.updateChatbotContext(currentContext);
+          }
+        }, [gameState, policies]);
+
         const applyPolicy = React.useCallback((policy) => {
           setGameState((prev) => {
             const newState = { ...prev };
@@ -1912,6 +1934,14 @@
                 </button>
                 <button className="btn btn-ghost" onClick={reset}>
                   {S.reset}
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    document.getElementById("unified-chat-button").click();
+                  }}
+                >
+                  🤖 Game Help
                 </button>
               </div>
             </div>
@@ -2975,6 +3005,962 @@
           diag.style.display = "block";
           diag.textContent =
             "ReactDOM failed to initialize. Please check CDN connectivity.";
+        }
+      }
+    </script>
+
+    <!-- Unified Chat Button -->
+    <div id="unified-chat-button">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H5.17L4 17.17V4H20V16Z"
+          fill="currentColor"
+        />
+        <circle cx="7" cy="9" r="1" fill="currentColor" />
+        <circle cx="12" cy="9" r="1" fill="currentColor" />
+        <circle cx="17" cy="9" r="1" fill="currentColor" />
+      </svg>
+      <span>Trợ lý AI</span>
+    </div>
+
+    <!-- Unified Chatbot Container -->
+    <div id="unified-chatbot-container" style="display: none">
+      <!-- Chatbot Header with Tabs -->
+      <div class="chatbot-header">
+        <div class="chatbot-tabs">
+          <button id="game-tab" class="tab-button active">🎮 Game</button>
+          <button id="lesson-tab" class="tab-button">📚 Bài học</button>
+        </div>
+        <button id="close-unified-chat" type="button">×</button>
+      </div>
+
+      <!-- Tab Contents -->
+      <div class="tab-content">
+        <!-- Game Chat Tab -->
+        <div id="game-chat-tab" class="chat-tab active">
+          <div id="game-chat-messages" class="chat-messages"></div>
+          <div class="chat-input-container">
+            <input
+              type="text"
+              id="game-chat-input"
+              placeholder="Hỏi về game..."
+            />
+            <button id="send-game-message">Gửi</button>
+          </div>
+        </div>
+
+        <!-- Lesson Chat Tab -->
+        <div id="lesson-chat-tab" class="chat-tab">
+          <iframe
+            id="lesson-chatbot-iframe"
+            src="https://bot.writesonic.com/share/bot/64ee0a9c-f251-4ac3-8e69-b4c7f1827ce0"
+            frameborder="0"
+            allowtransparency="true"
+          >
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Assistant Script -->
+    <script src="game-assistant.js"></script>
+
+    <script>
+      // Unified Chat functionality
+      document.addEventListener("DOMContentLoaded", function () {
+        // Unified Chat Elements
+        const unifiedChatButton = document.getElementById(
+          "unified-chat-button"
+        );
+        const unifiedChatContainer = document.getElementById(
+          "unified-chatbot-container"
+        );
+        const closeUnifiedChatButton =
+          document.getElementById("close-unified-chat");
+
+        // Tab Elements
+        const gameTab = document.getElementById("game-tab");
+        const lessonTab = document.getElementById("lesson-tab");
+        const gameChatTab = document.getElementById("game-chat-tab");
+        const lessonChatTab = document.getElementById("lesson-chat-tab");
+
+        // Game Chat Elements
+        const gameChatInput = document.getElementById("game-chat-input");
+        const sendGameMessageButton =
+          document.getElementById("send-game-message");
+        const gameChatMessages = document.getElementById("game-chat-messages");
+
+        // Lesson Chat Elements
+        const lessonChatIframe = document.getElementById(
+          "lesson-chatbot-iframe"
+        );
+
+        // Store current game context for chatbot
+        window.currentGameContext = null;
+
+        // Initialize Game Assistant
+        window.gameAssistant = new GameAssistant();
+
+        // Function to update chatbot context from React component
+        window.updateChatbotContext = function (context) {
+          const prevContext = window.currentGameContext;
+          window.currentGameContext = context;
+
+          // Update GameAssistant context too
+          if (window.gameAssistant) {
+            window.gameAssistant.updateContext(context);
+          }
+
+          // Auto-suggest help if critical situations detected
+          if (context && prevContext && isUnifiedChatOpen()) {
+            checkForCriticalSituations(context, prevContext);
+          }
+
+          // Auto-analysis when a new policy is applied
+          if (
+            context &&
+            prevContext &&
+            context.selectedPolicy !== prevContext.selectedPolicy &&
+            context.currentTurn > prevContext.currentTurn
+          ) {
+            setTimeout(() => {
+              autoAnalyzeAfterPolicy(context);
+            }, 2000);
+          }
+
+          console.log("Game context updated for chatbot:", context);
+        };
+
+        // Auto-analysis after policy selection
+        function autoAnalyzeAfterPolicy(context) {
+          if (!isUnifiedChatOpen()) return;
+
+          const recentEvent = context.recentEvents && context.recentEvents[0];
+          if (!recentEvent || recentEvent.type !== "policy") return;
+
+          let analysisMessage = `🎯 **PHÂN TÍCH SAU CHÍNH SÁCH:**\n\n`;
+          analysisMessage += `📋 Vừa thực hiện: **${recentEvent.title}**\n`;
+
+          if (recentEvent.conflictAnalysis) {
+            const conflict = recentEvent.conflictAnalysis;
+            analysisMessage += `📊 Mức xung đột: **${conflict.conflictLevel}**\n`;
+
+            if (conflict.benefitGroup) {
+              analysisMessage += `✅ Nhóm được lợi: ${conflict.benefitGroup}\n`;
+            }
+            if (conflict.lossGroup) {
+              analysisMessage += `❌ Nhóm thiệt hại: ${conflict.lossGroup}\n`;
+            }
+          }
+
+          // Check for immediate problems
+          const problems = [];
+          const indicators = context.currentIndicators || {};
+
+          if (indicators.unemployment > 75)
+            problems.push("Thất nghiệp quá cao");
+          if (indicators.gini > 75) problems.push("Bất bình đẳng nghiêm trọng");
+          if (indicators.gdp < 25) problems.push("GDP rất thấp");
+          if (indicators.legitimacy < 25) problems.push("Uy tín suy giảm");
+
+          if (problems.length > 0) {
+            analysisMessage += `\n⚠️ **VẤN ĐỀ CẦN CHÚ Ý:**\n${problems
+              .map((p) => `• ${p}`)
+              .join("\n")}`;
+          }
+
+          const suggestions = [
+            "Phân tích chi tiết",
+            "Gợi ý lượt tiếp theo",
+            "Xem nhật ký sự kiện",
+          ];
+          addMessage(analysisMessage, false, suggestions);
+        }
+
+        // Check if unified chat is currently open
+        function isUnifiedChatOpen() {
+          const chatContainer = document.getElementById(
+            "unified-chatbot-container"
+          );
+          const gameTab = document.getElementById("game-chat-tab");
+          return (
+            chatContainer &&
+            chatContainer.style.display !== "none" &&
+            gameTab &&
+            gameTab.style.display !== "none"
+          );
+        }
+
+        // Auto-detect critical situations and offer help
+        function checkForCriticalSituations(newContext, oldContext) {
+          if (!newContext || !oldContext) return;
+
+          const criticalThreshold = 30; // Ngưỡng cảnh báo hợp lý
+          let alerts = [];
+          let suggestions = [];
+
+          // Kiểm tra chỉ số theo đúng luật chơi
+          const indicators = newContext.currentIndicators || {};
+          const oldIndicators = oldContext.currentIndicators || {};
+
+          // Chỉ số cao = tốt (GDP, uy tín, quân sự)
+          if (indicators.gdp < 30 && oldIndicators.gdp >= 30) {
+            alerts.push("📉 GDP đã giảm xuống mức nguy hiểm!");
+            suggestions.push("Cách tăng GDP", "Chính sách kinh tế");
+          }
+          if (indicators.legitimacy < 30 && oldIndicators.legitimacy >= 30) {
+            alerts.push("🏛️ Uy tín chính phủ đang suy giảm nghiêm trọng!");
+            suggestions.push("Cách tăng uy tín", "Phân tích tình hình");
+          }
+
+          // Chỉ số thấp = tốt (thất nghiệp, bất bình đẳng)
+          if (
+            indicators.unemployment > 70 &&
+            oldIndicators.unemployment <= 70
+          ) {
+            alerts.push("💼 Tỷ lệ thất nghiệp đang tăng vọt!");
+            suggestions.push("Giảm thất nghiệp", "Tạo việc làm");
+          }
+          if (indicators.gini > 70 && oldIndicators.gini <= 70) {
+            alerts.push("⚖️ Bất bình đẳng xã hội gia tăng!");
+            suggestions.push("Giảm bất bình đẳng", "Công bằng xã hội");
+          }
+
+          // Kiểm tra nhóm xã hội không hài lòng
+          const socialGroups = newContext.currentSocialGroups || {};
+          const unhappyGroups = Object.entries(socialGroups)
+            .filter(([group, satisfaction]) => satisfaction < 25)
+            .map(([group]) => group);
+
+          if (unhappyGroups.length > 0) {
+            alerts.push(
+              `👥 Các nhóm xã hội không hài lòng: ${unhappyGroups.join(", ")}`
+            );
+            suggestions.push("Cách xử lý xung đột", "Phân tích nhóm xã hội");
+          }
+
+          // Tự động hiển thị phân tích nếu có vấn đề nghiêm trọng
+          if (alerts.length > 0) {
+            setTimeout(() => {
+              const analysisMessage = `🔍 **PHÂN TÍCH TÌNH HÌNH TỰ ĐỘNG:**\n\n${alerts.join(
+                "\n"
+              )}\n\n💡 **Cần hỗ trợ?** Hãy click vào gợi ý bên dưới:`;
+
+              addMessage(analysisMessage, false, suggestions.slice(0, 3));
+            }, 1500);
+          }
+        }
+
+        // Kiểm tra chỉ số nguy hiểm theo đúng luật chơi
+        function checkCriticalIndicators(indicators) {
+          if (!indicators) return false;
+
+          // Các chỉ số càng CAO càng tốt (dưới 25 là nguy hiểm)
+          const higherIsBetter = [
+            "gdp",
+            "legitimacy",
+            "military",
+            "publicServices",
+          ];
+
+          // Các chỉ số càng THẤP càng tốt (trên 75 là nguy hiểm)
+          const lowerIsBetter = ["unemployment", "gini"];
+
+          // Kiểm tra chỉ số cao = tốt
+          for (const indicator of higherIsBetter) {
+            if (indicators[indicator] && indicators[indicator] < 25) {
+              return true;
+            }
+          }
+
+          // Kiểm tra chỉ số thấp = tốt
+          for (const indicator of lowerIsBetter) {
+            if (indicators[indicator] && indicators[indicator] > 75) {
+              return true;
+            }
+          }
+
+          return false;
+        }
+
+        // Function to handle suggestion clicks
+        window.askQuestion = function (question) {
+          // Add the question as user message
+          addMessage(question, true);
+
+          // Get bot response
+          setTimeout(() => {
+            const response = getBotResponse(question);
+            addMessage(response, false);
+          }, 300);
+        };
+
+        // Original addMessage function for backward compatibility
+        function addMessage(message, isUser, suggestions = []) {
+          const messagesContainer = document.getElementById("game-messages");
+          if (!messagesContainer) return;
+
+          const messageDiv = document.createElement("div");
+          messageDiv.className = `message ${isUser ? "user" : "bot"}`;
+
+          if (isUser) {
+            messageDiv.innerHTML = `<div class="message-content">${message}</div>`;
+          } else {
+            let content = `<div class="message-content">${message}</div>`;
+
+            // Add suggestion buttons if provided
+            if (suggestions && suggestions.length > 0) {
+              content += '<div class="suggestion-buttons">';
+              suggestions.forEach((suggestion) => {
+                content += `<button class="suggestion-btn" onclick="askQuestion('${suggestion}')">${suggestion}</button>`;
+              });
+              content += "</div>";
+            }
+
+            messageDiv.innerHTML = content;
+          }
+
+          messagesContainer.appendChild(messageDiv);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Tab switching function
+        function switchTab(targetTab) {
+          // Remove active class from all tabs and contents
+          document
+            .querySelectorAll(".tab-button")
+            .forEach((tab) => tab.classList.remove("active"));
+          document
+            .querySelectorAll(".chat-tab")
+            .forEach((content) => content.classList.remove("active"));
+
+          // Add active class to target tab and content
+          if (targetTab === "game") {
+            gameTab.classList.add("active");
+            gameChatTab.classList.add("active");
+          } else if (targetTab === "lesson") {
+            lessonTab.classList.add("active");
+            lessonChatTab.classList.add("active");
+          }
+        }
+
+        // Game Chat Knowledge Base
+        const gameKnowledge = {
+          rules: {
+            keywords: ["rule", "cách chơi", "luật", "bắt đầu", "how to play"],
+            answer: `🎮 **Cách chơi Policy Simulator:**
+            
+• **Vai trò**: Bạn là Thủ tướng quốc gia
+• **Mục tiêu**: Cân bằng lợi ích quốc gia và các giai cấp xã hội
+• **Thời gian**: 10 lượt chơi
+• **Cách chơi**: Mỗi lượt chọn 1 chính sách để thực hiện
+
+📊 **Theo dõi các chỉ số:**
+- GDP, Thất nghiệp, Chỉ số Gini
+- Uy tín chính phủ, Quân sự, Dịch vụ công
+- Mức độ hài lòng của 5 nhóm xã hội`,
+          },
+
+          policies: {
+            keywords: [
+              "chính sách",
+              "policy",
+              "nên chọn",
+              "tác động",
+              "effect",
+            ],
+            answer: `🏛️ **8 Chính sách chính:**
+
+1. **Thuế cao doanh nghiệp** - Tăng ngân sách, giảm hài lòng doanh nghiệp
+2. **Tăng lương tối thiểu** - Công nhân vui, có thể giảm GDP ngắn hạn  
+3. **Đầu tư giáo dục** - Lợi ích dài hạn, cải thiện nhân lực
+4. **Tăng chi quốc phòng** - Tăng an ninh, giảm ngân sách khác
+5. **Môi trường nghiêm ngặt** - Giảm ô nhiễm, ảnh hưởng sản xuất
+6. **Hỗ trợ khởi nghiệp** - Thúc đẩy đổi mới, hỗ trợ doanh nghiệp nhỏ
+7. **Cải cách y tế** - Nâng cao sức khỏe, tăng chi phí
+8. **Đầu tư hạ tầng** - Thúc đẩy tăng trưởng, tạo việc làm`,
+          },
+
+          strategy: {
+            keywords: [
+              "chiến lược",
+              "strategy",
+              "gợi ý",
+              "tip",
+              "advice",
+              "nên làm",
+            ],
+            answer: `💡 **Chiến lược chơi hiệu quả:**
+
+🎯 **Nguyên tắc cân bằng:**
+- Không ưu tiên 1 nhóm quá mức
+- Chú ý đến tác động dài hạn
+- Theo dõi các chỉ số thường xuyên
+
+⚖️ **Cân bằng lợi ích:**
+- Công nhân: Lương, phúc lợi
+- Tầng lớp trung lưu: Ổn định, giáo dục  
+- Nhà tư bản: Thuế thấp, tự do kinh doanh
+- Thanh niên: Việc làm, môi trường
+- Freelancer: Linh hoạt, đổi mới
+
+⚠️ **Lưu ý:** Các quyết định có thể kích hoạt sự kiện xã hội bất ngờ!`,
+          },
+
+          indicators: {
+            keywords: [
+              "chỉ số",
+              "indicator",
+              "gdp",
+              "thất nghiệp",
+              "gini",
+              "uy tín",
+              "quân sự",
+            ],
+            answer: `📊 **Giải thích các chỉ số:**
+
+💰 **GDP (0-100)**: Sức khỏe kinh tế, càng cao càng tốt
+📈 **Thất nghiệp (0-100)**: Tỷ lệ thất nghiệp, càng thấp càng tốt  
+⚖️ **Chỉ số Gini (0-1)**: Bất bình đẳng thu nhập, càng thấp càng tốt
+🏛️ **Uy tín chính phủ (0-100)**: Tin tưởng dân chúng, quan trọng!
+🛡️ **Quân sự (0-100)**: An ninh quốc gia
+🏥 **Dịch vụ công (0-100)**: Chất lượng y tế, giáo dục, hạ tầng
+
+${
+  window.currentGameContext
+    ? `
+📈 **Tình hình hiện tại (Lượt ${window.currentGameContext.currentTurn}/${
+        window.currentGameContext.maxTurns
+      }):**
+- GDP: ${window.currentGameContext.currentIndicators?.gdp || "N/A"}
+- Thất nghiệp: ${
+        window.currentGameContext.currentIndicators?.unemployment || "N/A"
+      }
+- Uy tín: ${window.currentGameContext.currentIndicators?.legitimacy || "N/A"}
+`
+    : ""
+}`,
+          },
+
+          groups: {
+            keywords: [
+              "nhóm xã hội",
+              "giai cấp",
+              "công nhân",
+              "tư bản",
+              "trung lưu",
+              "thanh niên",
+              "freelancer",
+            ],
+            answer: `👥 **5 Nhóm xã hội:**
+
+🔨 **Công nhân**: Lao động chân tay
+- Quan tâm: Lương cao, phúc lợi, an toàn lao động
+- Ủng hộ: Tăng lương tối thiểu, cải cách y tế
+
+💼 **Tầng lớp trung lưu**: Thu nhập trung bình  
+- Quan tâm: Ổn định kinh tế, giáo dục, y tế
+- Ủng hộ: Đầu tư giáo dục, cải cách y tế
+
+💰 **Nhà tư bản**: Chủ sở hữu doanh nghiệp
+- Quan tâm: Thuế thấp, tự do kinh doanh  
+- Phản đối: Thuế cao, quy định nghiêm ngặt
+
+🌟 **Thanh niên**: Thế hệ trẻ
+- Quan tâm: Việc làm, môi trường, công nghệ
+- Ủng hộ: Hỗ trợ khởi nghiệp, bảo vệ môi trường
+
+💻 **Freelancer**: Làm việc tự do
+- Quan tâm: Linh hoạt, đổi mới sáng tạo
+- Ủng hộ: Hỗ trợ khởi nghiệp, đầu tư công nghệ
+
+${
+  window.currentGameContext
+    ? `
+😊 **Mức độ hài lòng hiện tại:**
+- Công nhân: ${window.currentGameContext.currentSocialGroups?.workers || "N/A"}
+- Trung lưu: ${
+        window.currentGameContext.currentSocialGroups?.middleClass || "N/A"
+      }  
+- Tư bản: ${window.currentGameContext.currentSocialGroups?.capitalists || "N/A"}
+- Thanh niên: ${window.currentGameContext.currentSocialGroups?.youth || "N/A"}
+- Freelancer: ${
+        window.currentGameContext.currentSocialGroups?.freelancers || "N/A"
+      }
+`
+    : ""
+}`,
+          },
+
+          theory: {
+            keywords: [
+              "lý thuyết",
+              "marx",
+              "lenin",
+              "mâu thuẫn",
+              "giai cấp",
+              "quốc gia",
+            ],
+            answer: `🤔 **Lý thuyết Marx-Lenin trong game:**
+
+⚔️ **Mâu thuẫn cốt lõi:**
+- Lợi ích **Quốc gia** vs Lợi ích **Giai cấp**
+- Chính sách có thể có lợi cho đất nước nhưng gây thiệt hại cho một số giai cấp
+- Hoặc ngược lại, có lợi cho giai cấp nhưng hại toàn quốc gia
+
+🎯 **Mục tiêu game:** Tìm sự cân bằng tối ưu giữa:
+- Tăng trưởng kinh tế tổng thể
+- Công bằng xã hội giữa các tầng lớp
+- Ổn định chính trị dài hạn
+
+💡 **Bài học:** Không có quyết định nào hoàn hảo cho tất cả. Nghệ thuật cầm quyền là biết cân bằng!`,
+          },
+        };
+
+        // Enhanced chatbot logic using GameAssistant
+        function getBotResponse(userMessage) {
+          // First try GameAssistant if available
+          if (window.gameAssistant) {
+            const assistantResponse = window.gameAssistant.analyze(userMessage);
+
+            // If GameAssistant has a response, use it
+            if (assistantResponse) {
+              // Only add context indicator for specific game-related queries
+              const needsContext =
+                userMessage.toLowerCase().includes("tình hình") ||
+                userMessage.toLowerCase().includes("phân tích") ||
+                userMessage.toLowerCase().includes("hiện tại") ||
+                userMessage.toLowerCase().includes("gợi ý");
+
+              if (needsContext && window.currentGameContext) {
+                const ctx = window.currentGameContext;
+
+                // Kiểm tra chỉ số nguy hiểm theo đúng luật chơi
+                const isCritical =
+                  checkCriticalIndicators(ctx.currentIndicators) ||
+                  Object.values(ctx.currentSocialGroups || {}).some(
+                    (v) => v < 25
+                  );
+
+                if (isCritical) {
+                  return `<span class="game-context-indicator warning">⚠️ Tình hình khẩn cấp</span><br>${assistantResponse}`;
+                } else {
+                  return `<span class="game-context-indicator">🎮 Lượt ${ctx.currentTurn}/${ctx.maxTurns}</span><br>${assistantResponse}`;
+                }
+              }
+
+              return assistantResponse;
+            }
+          }
+
+          // Fallback to original logic
+          const message = userMessage.toLowerCase();
+
+          // Check each knowledge category
+          for (const [category, data] of Object.entries(gameKnowledge)) {
+            if (data.keywords.some((keyword) => message.includes(keyword))) {
+              return data.answer;
+            }
+          }
+
+          // Context-aware responses
+          if (window.currentGameContext) {
+            if (
+              message.includes("tình hình") ||
+              message.includes("hiện tại") ||
+              message.includes("current")
+            ) {
+              return `📊 **Tình hình game hiện tại (Lượt ${
+                window.currentGameContext.currentTurn
+              }/${window.currentGameContext.maxTurns}):**
+
+💰 **Chỉ số quốc gia:**
+- GDP: ${window.currentGameContext.currentIndicators?.gdp || "N/A"}
+- Thất nghiệp: ${
+                window.currentGameContext.currentIndicators?.unemployment ||
+                "N/A"
+              }  
+- Uy tín chính phủ: ${
+                window.currentGameContext.currentIndicators?.legitimacy || "N/A"
+              }
+- Quân sự: ${window.currentGameContext.currentIndicators?.military || "N/A"}
+
+👥 **Mức độ hài lòng:**
+- Công nhân: ${window.currentGameContext.currentSocialGroups?.workers || "N/A"}
+- Trung lưu: ${
+                window.currentGameContext.currentSocialGroups?.middleClass ||
+                "N/A"
+              }
+- Tư bản: ${window.currentGameContext.currentSocialGroups?.capitalists || "N/A"}
+- Thanh niên: ${window.currentGameContext.currentSocialGroups?.youth || "N/A"}
+
+${
+  window.currentGameContext.recentEvents?.length > 0
+    ? `
+🔔 **Sự kiện gần đây:**
+${window.currentGameContext.recentEvents
+  .slice(0, 2)
+  .map((event) => `- ${event.title}`)
+  .join("\n")}`
+    : ""
+}`;
+            }
+          }
+
+          // Default responses with contextual suggestions
+          const defaultResponses = [
+            "🤖 Xin chào! Tôi là Game Assistant. Hỏi tôi về:\n• Rules & cách chơi\n• Chính sách & tác động\n• Chiến lược & tips\n• Chỉ số & nhóm xã hội\n• Lý thuyết Marx-Lenin",
+            "💡 Hãy hỏi cụ thể hơn! Ví dụ:\n• 'Cách chơi game này?'\n• 'Chính sách nào tốt?'\n• 'Giải thích chỉ số GDP'\n• 'Tình hình hiện tại thế nào?'",
+            "🎮 Tôi có thể giúp bạn hiểu rõ hơn về game Policy Simulator. Hãy hỏi về rules, chính sách, hoặc chiến lược!",
+          ];
+
+          const randomResponse =
+            defaultResponses[
+              Math.floor(Math.random() * defaultResponses.length)
+            ];
+
+          // Tạo gợi ý contextual thông minh
+          let suggestions = [];
+
+          if (window.gameAssistant && window.currentGameContext) {
+            // Sử dụng GameAssistant để tạo gợi ý contextual
+            suggestions = window.gameAssistant.generateContextualSuggestions();
+          } else {
+            // Gợi ý mặc định khi chưa có context
+            suggestions = [
+              "Cách chơi game này",
+              "Giải thích các chỉ số",
+              "Các nhóm xã hội là gì",
+              "Chiến lược bắt đầu",
+            ];
+          }
+
+          let finalResponse = randomResponse + "\n\n🔍 Bạn có thể hỏi:\n";
+          suggestions.forEach((suggestion) => {
+            finalResponse += `<button class="suggestion-btn" onclick="askQuestion('${suggestion}')">${suggestion}</button>\n`;
+          });
+
+          return finalResponse;
+        }
+
+        // Add message to chat
+        function addMessage(message, isUser = false) {
+          const messageDiv = document.createElement("div");
+          messageDiv.className = `chat-message ${
+            isUser ? "user-message" : "bot-message"
+          }`;
+
+          if (isUser) {
+            messageDiv.innerHTML = `<div class="message-content">${message}</div>`;
+          } else {
+            // Process message to handle HTML content (like suggestion buttons)
+            let processedMessage = message.replace(/\n/g, "<br>");
+
+            messageDiv.innerHTML = `
+              <div class="bot-avatar">🤖</div>
+              <div class="message-content">${processedMessage}</div>
+            `;
+          }
+
+          gameChatMessages.appendChild(messageDiv);
+
+          // Force scroll to bottom with multiple methods
+          setTimeout(() => {
+            gameChatMessages.scrollTop = gameChatMessages.scrollHeight;
+            gameChatMessages.scrollIntoView(false);
+          }, 50);
+        }
+
+        // Send message function
+        function sendGameMessage() {
+          const message = gameChatInput.value.trim();
+          if (!message) return;
+
+          // Add user message
+          addMessage(message, true);
+          gameChatInput.value = "";
+
+          // Get bot response
+          setTimeout(() => {
+            const response = getBotResponse(message);
+            addMessage(response, false);
+          }, 500);
+        }
+
+        // Unified Chat Event Listeners
+        unifiedChatButton.addEventListener("click", function () {
+          unifiedChatContainer.style.display = "block";
+          unifiedChatButton.style.display = "none";
+
+          // Add welcome message if first time opening game chat
+          if (gameChatMessages.children.length === 0) {
+            setTimeout(() => {
+              const welcomeMessage = `🎮 Xin chào! Tôi là Game Assistant AI. Tôi có thể giúp bạn:
+
+• Hiểu rules và cách chơi
+• Phân tích chính sách và tác động  
+• Đưa ra chiến lược và tips
+• Giải thích các chỉ số game
+• Hỗ trợ real-time khi chơi
+
+🔍 Bạn có thể hỏi:
+<button class="suggestion-btn" onclick="askQuestion('Cách chơi game này')">Cách chơi game này</button>
+<button class="suggestion-btn" onclick="askQuestion('Giải thích các chỉ số')">Giải thích các chỉ số</button>
+<button class="suggestion-btn" onclick="askQuestion('Chiến lược bắt đầu')">Chiến lược bắt đầu</button>
+
+Hãy hỏi tôi bất cứ điều gì! 😊`;
+
+              addMessage(welcomeMessage, false);
+            }, 300);
+          }
+        });
+
+        closeUnifiedChatButton.addEventListener("click", function () {
+          unifiedChatContainer.style.display = "none";
+          unifiedChatButton.style.display = "flex";
+        });
+
+        // Tab switching listeners
+        gameTab.addEventListener("click", function () {
+          switchTab("game");
+        });
+
+        lessonTab.addEventListener("click", function () {
+          switchTab("lesson");
+        });
+
+        // Game chat functionality
+        sendGameMessageButton.addEventListener("click", sendGameMessage);
+
+        gameChatInput.addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            sendGameMessage();
+          }
+        });
+
+        // Send game context to lesson chatbot when it loads
+        lessonChatIframe.addEventListener("load", function () {
+          try {
+            const gameContext = getGameContextForChatbot();
+            console.log("Game context ready for lesson chatbot:", gameContext);
+          } catch (error) {
+            console.log("Game context not available yet");
+          }
+        });
+      });
+      // Function to get game context for chatbot
+      function getGameContextForChatbot() {
+        // Try to get game state from React component
+        try {
+          // Get current game context if available
+          const currentContext = window.currentGameContext;
+
+          // Basic game information for chatbot
+          const gameInfo = {
+            gameType: "Policy Simulator - Mô phỏng Chính sách",
+            description:
+              "Một trò chơi mô phỏng chính sách nơi người chơi đóng vai trò thủ tướng và đưa ra các quyết định chính sách ảnh hưởng đến đất nước.",
+
+            // Current game state (if available)
+            currentState: currentContext
+              ? {
+                  turn: `Lượt ${currentContext.currentTurn}/${currentContext.maxTurns}`,
+                  indicators: {
+                    GDP: currentContext.currentIndicators?.gdp || "N/A",
+                    "Thất nghiệp":
+                      currentContext.currentIndicators?.unemployment || "N/A",
+                    "Chỉ số Gini":
+                      currentContext.currentIndicators?.gini || "N/A",
+                    "Uy tín chính phủ":
+                      currentContext.currentIndicators?.legitimacy || "N/A",
+                    "Quân sự":
+                      currentContext.currentIndicators?.military || "N/A",
+                    "Dịch vụ công":
+                      currentContext.currentIndicators?.publicServices || "N/A",
+                  },
+                  socialGroups: {
+                    "Công nhân":
+                      currentContext.currentSocialGroups?.workers || "N/A",
+                    "Tầng lớp trung lưu":
+                      currentContext.currentSocialGroups?.middleClass || "N/A",
+                    "Nhà tư bản":
+                      currentContext.currentSocialGroups?.capitalists || "N/A",
+                    "Thanh niên":
+                      currentContext.currentSocialGroups?.youth || "N/A",
+                    Freelancer:
+                      currentContext.currentSocialGroups?.freelancers || "N/A",
+                  },
+                  selectedPolicy:
+                    currentContext.selectedPolicy || "Chưa chọn chính sách",
+                  recentEvents: currentContext.recentEvents || [],
+                  gameStatus: currentContext.gameEnded
+                    ? currentContext.gameWon
+                      ? "Thắng"
+                      : "Thua"
+                    : "Đang chơi",
+                }
+              : null,
+
+            instructions: [
+              "🏛️ Bạn đang chơi vai trò một thủ tướng quốc gia",
+              "📋 Mỗi lượt, bạn có thể chọn một chính sách để thực hiện",
+              "📊 Các chính sách sẽ ảnh hưởng đến các chỉ số quốc gia như GDP, thất nghiệp, uy tín chính phủ",
+              "⚖️ Mục tiêu là cân bằng các lợi ích và duy trì sự ổn định của đất nước",
+              "⚠️ Chú ý đến các sự kiện xã hội có thể xảy ra do các quyết định của bạn",
+              "🤔 Game khám phá mâu thuẫn giữa lợi ích quốc gia và lợi ích giai cấp",
+            ],
+
+            availablePolicies: currentContext?.currentPolicies || [
+              {
+                name: "Thuế cao cho doanh nghiệp",
+                description:
+                  "Tăng thuế doanh nghiệp để có thêm ngân sách nhà nước",
+                effects: "Tăng ngân sách, giảm hài lòng của doanh nghiệp",
+              },
+              {
+                name: "Tăng lương tối thiểu",
+                description: "Nâng cao mức lương tối thiểu cho người lao động",
+                effects: "Tăng hài lòng công nhân, có thể giảm GDP ngắn hạn",
+              },
+              {
+                name: "Đầu tư vào giáo dục",
+                description: "Tăng ngân sách cho hệ thống giáo dục",
+                effects: "Cải thiện chất lượng nhân lực, lợi ích dài hạn",
+              },
+              {
+                name: "Tăng chi tiêu quốc phòng",
+                description: "Đầu tư mạnh vào an ninh quốc gia",
+                effects: "Tăng an ninh, giảm ngân sách cho các lĩnh vực khác",
+              },
+              {
+                name: "Chính sách môi trường nghiêm ngặt",
+                description: "Siết chặt quy định bảo vệ môi trường",
+                effects:
+                  "Giảm ô nhiễm, có thể ảnh hưởng đến hoạt động sản xuất",
+              },
+              {
+                name: "Hỗ trợ khởi nghiệp",
+                description: "Chính sách khuyến khích khởi nghiệp và đổi mới",
+                effects: "Thúc đẩy đổi mới, hỗ trợ doanh nghiệp nhỏ",
+              },
+              {
+                name: "Cải cách y tế",
+                description: "Cải thiện hệ thống y tế quốc gia",
+                effects: "Nâng cao sức khỏe dân số, tăng chi phí ngân sách",
+              },
+              {
+                name: "Đầu tư cơ sở hạ tầng",
+                description: "Xây dựng và nâng cấp cơ sở hạ tầng",
+                effects: "Thúc đẩy tăng trưởng kinh tế, tạo việc làm",
+              },
+            ],
+
+            indicators: [
+              {
+                name: "GDP",
+                description:
+                  "Tổng sản phẩm quốc nội - thước đo sức khỏe kinh tế",
+                range: "0-100",
+              },
+              {
+                name: "Thất nghiệp",
+                description: "Tỷ lệ thất nghiệp trong dân số",
+                range: "0-100",
+              },
+              {
+                name: "Chỉ số Gini",
+                description: "Đo lường bất bình đẳng thu nhập",
+                range: "0-1",
+              },
+              {
+                name: "Uy tín chính phủ",
+                description: "Mức độ tin tưởng của dân chúng",
+                range: "0-100",
+              },
+              {
+                name: "Quân sự",
+                description: "Sức mạnh quốc phòng và an ninh",
+                range: "0-100",
+              },
+              {
+                name: "Dịch vụ công",
+                description: "Chất lượng các dịch vụ công cộng",
+                range: "0-100",
+              },
+            ],
+
+            socialGroups: [
+              {
+                name: "Công nhân",
+                description: "Tầng lớp lao động chân tay",
+                interests: "Lương cao, phúc lợi, an toàn lao động",
+              },
+              {
+                name: "Tầng lớp trung lưu",
+                description: "Nhóm thu nhập trung bình",
+                interests: "Ổn định kinh tế, giáo dục, y tế",
+              },
+              {
+                name: "Nhà tư bản",
+                description: "Chủ sở hữu các phương tiện sản xuất",
+                interests: "Thuế thấp, tự do kinh doanh",
+              },
+              {
+                name: "Thanh niên",
+                description: "Thế hệ trẻ của đất nước",
+                interests: "Việc làm, môi trường, công nghệ",
+              },
+              {
+                name: "Freelancer",
+                description: "Những người làm việc tự do",
+                interests: "Linh hoạt, đổi mới, khởi nghiệp",
+              },
+            ],
+
+            gameplayTips: [
+              "💡 Cân bằng giữa tăng trưởng kinh tế và bảo vệ môi trường",
+              "⏰ Chú ý đến tác động dài hạn của các chính sách",
+              "📈 Theo dõi các chỉ số để đưa ra quyết định phù hợp",
+              "🎯 Một số chính sách có thể có tác động tiêu cực ngắn hạn nhưng có lợi về lâu dài",
+              "👥 Mỗi nhóm xã hội có lợi ích khác nhau, cần cân nhắc kỹ",
+              "⚡ Các quyết định có thể dẫn đến các sự kiện xã hội bất ngờ",
+              "🔄 Hãy luôn suy nghĩ về tác động domino của các chính sách",
+            ],
+
+            conflictTheory: [
+              "🏛️ Game khám phá lý thuyết về mâu thuẫn giữa lợi ích quốc gia và giai cấp",
+              "⚖️ Các chính sách có thể có lợi cho quốc gia nhưng bất lợi cho một số giai cấp",
+              "🔄 Hoặc ngược lại, có lợi cho một giai cấp nhưng gây thiệt hại cho toàn quốc gia",
+              "🎯 Mục tiêu là tìm ra sự cân bằng tối ưu giữa các lợi ích này",
+              "📊 Theo dõi các chỉ số để nhận biết mâu thuẫn và điều chỉnh kịp thời",
+            ],
+
+            chatbotRole:
+              "🤖 Tôi là trợ lý AI chuyên hỗ trợ người chơi Policy Simulator. Tôi có thể:\n" +
+              "• Giải thích rules và cách chơi\n" +
+              "• Đưa ra gợi ý chiến lược dựa trên tình hình hiện tại\n" +
+              "• Phân tích tác động của các chính sách\n" +
+              "• Giúp hiểu rõ hơn về lý thuyết chính trị trong game\n" +
+              "• Tư vấn cách cân bằng các lợi ích khác nhau\n" +
+              "• Dự đoán hậu quả có thể xảy ra\n\n" +
+              "Hãy hỏi tôi bất cứ điều gì về game!",
+          };
+
+          return gameInfo;
+        } catch (error) {
+          // Fallback basic info
+          return {
+            gameType: "Policy Simulator",
+            status: "Game context loading...",
+            chatbotRole:
+              "Tôi là trợ lý AI hỗ trợ game Policy Simulator. Hãy hỏi tôi về rules hoặc chiến lược!",
+          };
         }
       }
     </script>
