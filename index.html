@@ -1,0 +1,2605 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Nation's Voice</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <meta
+      name="description"
+      content="Interactive civics mini-simulation exploring roles, interests, and conflict escalation under a simple policy shock."
+    />
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <div
+      id="diag"
+      style="
+        display: none;
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 12px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: #ffd;
+        background: rgba(255, 255, 255, 0.06);
+      "
+    ></div>
+
+    <!-- React via CDN (no build) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+    <!-- Babel for JSX in-browser; suitable for demo/static hosting -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script>
+      (function () {
+        function show(msg) {
+          var el = document.getElementById("diag");
+          if (!el) return;
+          el.style.display = "block";
+          el.textContent = msg;
+        }
+        if (!navigator.onLine) {
+          show(
+            "Offline detected. This page needs internet to load React from CDN. Please connect and refresh."
+          );
+        }
+        if (!window.React || !window.ReactDOM || !window.Babel) {
+          show(
+            "CDN libraries failed to load. If you are online, try hard refresh (Ctrl+F5). If the issue persists, run a local server and open http://localhost instead of file://"
+          );
+        }
+        window.addEventListener("error", function (e) {
+          show("Error: " + e.message);
+        });
+      })();
+    </script>
+
+    <!-- App code (inlined for file:// usage) with bilingual support -->
+    <script type="text/babel" data-presets="es2015,react">
+      /* global React, ReactDOM */
+
+      const STRINGS = {
+        en: {
+          title: "The Nation's Voice",
+          tagline:
+            "Explore interests and conflict through roles, case studies, and a quick simulation.",
+          shockBadge: "Policy Shock: +15% Fuel Tax",
+          play: "Play minigame",
+          startSingle: "Start Single-Role",
+          startAll: "Start All-Roles",
+          modeLabel: "Mode",
+          modeSingle: "Single-Role",
+          modeAll: "All-Roles",
+          readCases: "Read cases",
+          ctaCases: "Explore Case Studies",
+          ctaArticles: "Read Articles",
+          selectRoleTitle: "Select Your Role",
+          selectRoleDesc:
+            "Choose a perspective to experience the policy shock.",
+          theoryTitle: "Marx–Lenin: Class–Nation at a glance",
+          theoryPoints: [
+            "History is class struggle; state policy often reflects ruling-class interests.",
+            "National interests can clash with class interests → social protest.",
+            "Policy design must weigh stakeholders; negotiation can reduce conflict.",
+          ],
+          caseStudiesTitle: "Case Studies",
+          caseStudiesDesc: "Tap to learn how similar tensions unfolded.",
+          summaryTab: "Summary",
+          deepTab: "Deep",
+          close: "Close",
+          conflict: "Conflict",
+          govPopularity: "Government Popularity",
+          newsFeed: "News Feed",
+          simulationTitle: "Fuel Tax Shock — Mini Simulation",
+          turnsOf: (t, m) =>
+            `Turns ${t}/${m}. Pick one action per turn from your role.`,
+          setStances: "Set stances for all roles, then advance the week.",
+          advance: "Advance Turn",
+          disagreement: "Disagreement Index",
+          satisfaction: "Satisfaction",
+          simPurpose:
+            "Goal: see how role disagreements under a fuel-tax shock drive social conflict.",
+          support: "Support",
+          negotiate: "Negotiate",
+          oppose: "Oppose",
+          reset: "Reset",
+          low: "Low",
+          high: "High",
+          simComplete: "Simulation complete.",
+          simDiscuss:
+            "Discuss: whose interests were prioritized? What trade-offs worked?",
+          policyAnnounce:
+            "Policy announced: +15% fuel tax to fund infrastructure & energy transition.",
+          warn: "Warning: Escalation risk rising. Streets tense.",
+          crisis:
+            "Crisis: Confrontations erupt. Emergency measures considered.",
+          outcome1: "Outcome: Negotiated settlement stabilizes society.",
+          outcome2: "Outcome: Uneasy truce. Popularity hit lingers.",
+          outcome3:
+            "Outcome: Crisis forces retreat or crackdown. Long-term trust declines.",
+          shock: "Shock event: viral incident escalates tensions (+30).",
+          gov: "Government",
+          workers: "Workers",
+          students: "Students",
+          business: "Big Business",
+          roles: {
+            government: {
+              blurb: "Budget stability, climate goals, national image.",
+              chips: ["Revenue", "Macro stability", "Energy transition"],
+            },
+            workers: {
+              blurb: "Cost of living pressure, wages, transport costs.",
+              chips: ["Living costs", "Wages", "Transport"],
+            },
+            students: {
+              blurb: "Fairness, transparency, future outlook.",
+              chips: ["Transparency", "Opportunity", "Voice"],
+            },
+            business: {
+              blurb: "Profits, logistics, PR & lobbying.",
+              chips: ["Profit", "Supply chain", "Lobbying"],
+            },
+          },
+          cases: {
+            usa: {
+              title: "USA — 'We are the 99%' (2011)",
+              summary:
+                "Occupy highlighted post-2008 inequality. Leaderless but reshaped discourse on distribution.",
+              deep: "Occupy Wall Street began at Zuccotti Park in 2011, reacting to financial power and inequality after the 2008 crisis. The movement, despite lacking formal leadership, pushed income distribution to the center of public debate and illustrated how class interests can clash with the majority population.",
+              sources: "Al Jazeera",
+            },
+            france: {
+              title: "France — Gilets Jaunes (2018–2019)",
+              summary:
+                "Sparked by fuel-tax hikes, broadened into cost-of-living revolt seen as against “policies for the rich.”",
+              deep: "Originating online against a fuel-tax increase, the Yellow Vests quickly became a leaderless nationwide movement expressing rural and lower-middle frustrations. Government partially backtracked. It showed how “national interest” narratives (e.g., climate goals) can collide with everyday livelihoods.",
+              sources: "Wikipedia",
+            },
+            indo: {
+              title: "Indonesia — Student Protests (2019)",
+              summary:
+                "Protested law changes weakening the anti-graft body and other controversial articles, leading to mass rallies.",
+              deep: "In 2019, proposed revisions that curbed the anti-corruption commission triggered large student-led demonstrations nationwide. Tension reflected a clash between state-order priorities and civic demands for accountability and rule of law.",
+              sources: "Reuters",
+            },
+          },
+          nav: {
+            home: "Home",
+            intro: "Introduction",
+            cases: "Case Studies",
+            sim: "Simulation",
+            articles: "Articles",
+          },
+          articlesTitle: "Articles & Illustrations",
+          articlesDesc:
+            "Short bilingual briefs with sources and illustrative images.",
+          read: "Read source",
+          introTitle: "How to Play — Policy Simulator",
+          intro: [
+            "Role: You play as the Government (Prime Minister/President), managing the country through public policies.",
+            "Main Indicators: GDP, Unemployment, Gini (inequality), Legitimacy (government trust), Military Strength, Public Services (health, education, welfare).",
+            "Social Groups: Workers, Middle Class, Capitalists/Owners, Youth/Students, Freelancers/Farmers.",
+            "Turns: Each turn = 1 year. Player chooses one policy → system updates indicators and group satisfaction. Random events may occur.",
+            "Social Reactions: If a group is dissatisfied → strikes/protests. Multiple dissatisfied groups → Legitimacy drops sharply, risk of losing power.",
+            "Government Responses: Negotiate, Media Campaign , or Repress (each with costs and risks).",
+            "Winning Conditions: Achieve scenario goals (e.g., keep Legitimacy > 60 for 10 years, reduce Gini to 0.35, or increase Military Strength to a target).",
+            "Losing Conditions: Overthrown due to low Legitimacy or the country falls into total crisis.",
+          ],
+          newsSource: "Tuổi Trẻ",
+          langBtn: "VI/EN",
+          policySimulatorTitle: "Nation vs Class — Policy Simulator",
+          policySimulatorDesc:
+            "Manage the country as Government. Choose policies each turn and balance competing interests.",
+          turn: "Turn",
+          year: "Year",
+          indicators: "National Indicators",
+          socialGroups: "Social Groups",
+          policies: "Policy Choices",
+          events: "Event Log",
+          gameResult: "Game Result",
+          gdp: "GDP",
+          unemployment: "Unemployment",
+          gini: "Gini (Inequality)",
+          legitimacy: "Legitimacy",
+          military: "Military Strength",
+          publicServices: "Public Services",
+          workers: "Workers",
+          middleClass: "Middle Class",
+          capitalists: "Capitalists",
+          youth: "Youth/Students",
+          freelancers: "Freelancers/Farmers",
+          satisfaction: "Satisfaction",
+          low: "Low",
+          high: "High",
+          choosePolicy: "Choose Policy",
+          advanceTurn: "Advance Turn",
+          reset: "Reset",
+          negotiate: "Negotiate",
+          pr: "PR Campaign",
+          repress: "Repress",
+          randomEvent: "Random Event",
+          crisis: "Economic Crisis",
+          protest: "Mass Protest",
+          scandal: "Government Scandal",
+          win: "Victory!",
+          lose: "Defeat!",
+          winCondition: "You achieved the scenario goals!",
+          loseCondition:
+            "Your legitimacy collapsed or the country fell into crisis.",
+          playAgain: "Play Again",
+        },
+        vi: {
+          title: "Tiếng nói Quốc gia",
+          tagline:
+            "Khám phá lợi ích và xung đột qua vai trò, case-study và mô phỏng nhanh.",
+          shockBadge: "Cú sốc chính sách: Tăng thuế xăng +15%",
+          play: "Chơi minigame",
+          startSingle: "Chơi 1 vai",
+          startAll: "Điều khiển 4 vai",
+          modeLabel: "Chế độ",
+          modeSingle: "1 vai",
+          modeAll: "4 vai",
+          readCases: "Xem case-study",
+          ctaCases: "Khám phá Case Study",
+          ctaArticles: "Đọc Bài báo",
+          selectRoleTitle: "Chọn vai của bạn",
+          selectRoleDesc: "Chọn một góc nhìn để trải nghiệm cú sốc chính sách.",
+          theoryTitle: "Mác–Lênin: Giai cấp–Dân tộc tóm lược",
+          theoryPoints: [
+            "Lịch sử là đấu tranh giai cấp; chính sách thường phản ánh lợi ích giai cấp cầm quyền.",
+            "Lợi ích dân tộc có thể mâu thuẫn với lợi ích giai cấp → phản kháng xã hội.",
+            "Thiết kế chính sách phải cân lợi ích các bên; đàm phán giúp giảm xung đột.",
+          ],
+          caseStudiesTitle: "Case Study",
+          caseStudiesDesc: "Nhấn để xem các căng thẳng tương tự đã diễn ra.",
+          summaryTab: "Tóm tắt",
+          deepTab: "Phân tích",
+          close: "Đóng",
+          conflict: "Mức xung đột",
+          govPopularity: "Độ tín nhiệm chính phủ",
+          newsFeed: "Bản tin",
+          simulationTitle: "Tăng thuế xăng — Mô phỏng nhanh",
+          turnsOf: (t, m) =>
+            `Lượt ${t}/${m}. Mỗi lượt chọn 1 hành động của vai bạn.`,
+          setStances: "Chọn lập trường cho mọi nhóm, sau đó sang tuần mới.",
+          advance: "Sang lượt",
+          disagreement: "Chỉ số bất đồng",
+          satisfaction: "Mức hài lòng",
+          simPurpose:
+            "Mục tiêu: xem bất đồng lập trường dưới cú sốc thuế xăng đẩy xung đột xã hội ra sao.",
+          support: "Ủng hộ",
+          negotiate: "Đàm phán",
+          oppose: "Phản đối",
+          reset: "Làm lại",
+          low: "Thấp",
+          high: "Cao",
+          simComplete: "Kết thúc mô phỏng.",
+          simDiscuss:
+            "Thảo luận: lợi ích ai được ưu tiên? Đánh đổi nào hiệu quả?",
+          policyAnnounce:
+            "Chính phủ công bố: tăng thuế xăng +15% để tài trợ hạ tầng & chuyển dịch năng lượng.",
+          warn: "Cảnh báo: Nguy cơ leo thang. Đường phố căng thẳng.",
+          crisis:
+            "Khủng hoảng: Đụng độ bùng phát. Cân nhắc biện pháp khẩn cấp.",
+          outcome1: "Kết quả: Đàm phán thành công, xã hội ổn định.",
+          outcome2: "Kết quả: Hòa hoãn mong manh. Tín nhiệm suy giảm.",
+          outcome3:
+            "Kết quả: Khủng hoảng buộc thoái lui hoặc trấn áp. Niềm tin dài hạn giảm.",
+          shock: "Sự kiện sốc: vụ việc lan truyền làm căng thẳng tăng (+30).",
+          gov: "Chính phủ",
+          workers: "Công nhân",
+          students: "Sinh viên",
+          business: "Doanh nghiệp lớn",
+          roles: {
+            government: {
+              blurb: "Ổn định ngân sách, mục tiêu khí hậu, hình ảnh quốc gia.",
+              chips: [
+                "Thu ngân sách",
+                "Ổn định vĩ mô",
+                "Chuyển dịch năng lượng",
+              ],
+            },
+            workers: {
+              blurb: "Áp lực chi phí sống, lương, chi phí đi lại.",
+              chips: ["Chi phí sống", "Lương", "Vận chuyển"],
+            },
+            students: {
+              blurb: "Công bằng, minh bạch, tương lai.",
+              chips: ["Minh bạch", "Cơ hội", "Tiếng nói"],
+            },
+            business: {
+              blurb: "Lợi nhuận, logistics, PR & vận động hành lang.",
+              chips: ["Lợi nhuận", "Chuỗi cung ứng", "Vận động"],
+            },
+          },
+          cases: {
+            usa: {
+              title: "Mỹ — 'We are the 99%' (2011)",
+              summary:
+                "Occupy làm nổi bật bất bình đẳng sau khủng hoảng 2008; không lãnh đạo nhưng đổi hướng thảo luận phân phối thu nhập.",
+              deep: "Occupy Wall Street khởi phát ở Zuccotti Park (2011) nhằm phản ứng trước quyền lực tài chính và bất bình đẳng sau 2008. Dù không có lãnh đạo, phong trào đẩy vấn đề phân phối thu nhập lên trung tâm diễn ngôn công chúng, cho thấy khi lợi ích giai cấp va chạm lợi ích đa số, phản kháng có thể lan rộng.",
+              sources: "Al Jazeera",
+            },
+            france: {
+              title: "Pháp — Áo Vàng (2018–2019)",
+              summary:
+                "Khởi nguồn phản đối tăng thuế nhiên liệu, mở rộng thành phong trào về chi phí sống và chính sách bị xem là “của giới giàu”.",
+              deep: "Xuất phát trực tuyến phản đối tăng thuế nhiên liệu, Áo Vàng nhanh chóng thành phong trào không lãnh đạo rõ ràng, phản ánh ức chế của cư dân nông thôn và tầng lớp trung-thấp. Chính phủ phải lùi một số biện pháp. Cho thấy “lợi ích quốc gia” (mục tiêu khí hậu) có thể xung đột sinh kế hằng ngày.",
+              sources: "Wikipedia",
+            },
+            indo: {
+              title: "Indonesia — Biểu tình sinh viên (2019)",
+              summary:
+                "Phản đối sửa luật làm suy yếu cơ quan chống tham nhũng và điều khoản gây tranh cãi — dẫn đến tuần hành lớn.",
+              deep: "Năm 2019, đề xuất hạn chế cơ quan chống tham nhũng kích hoạt các cuộc tuần hành sinh viên trên toàn quốc. Căng thẳng phản ánh xung đột giữa ưu tiên trật tự nhà nước và đòi hỏi minh bạch, trách nhiệm.",
+              sources: "Reuters",
+            },
+          },
+          nav: {
+            home: "Trang chủ",
+            intro: "Giới thiệu",
+            cases: "Case Study",
+            sim: "Mô phỏng",
+            articles: "Bài báo",
+          },
+          articlesTitle: "Bài báo & Hình minh hoạ",
+          articlesDesc: "Tóm tắt song ngữ kèm nguồn và hình minh hoạ.",
+          read: "Đọc nguồn",
+          introTitle: "Cách chơi — Mô phỏng chính sách",
+          intro: [
+            "Vai trò: Người chơi là Chính phủ (Thủ tướng/Tổng thống), quản lý quốc gia qua chính sách công.",
+            "Chỉ số chính: GDP, Thất nghiệp, Gini (bất bình đẳng), Legitimacy (uy tín), Military Strength (quốc phòng), Public Services (y tế, giáo dục, phúc lợi).",
+            "Nhóm xã hội: Người lao động, Trung lưu, Giới chủ/Tư bản, Thanh niên/Sinh viên, Nghề tự do/Nông dân.",
+            "Lượt chơi: Mỗi lượt = 1 năm. Người chơi chọn 1 chính sách → hệ thống cập nhật chỉ số và mức độ hài lòng. Có thể xuất hiện biến cố ngẫu nhiên.",
+            "Phản ứng xã hội: Nếu nhóm bất mãn → đình công/biểu tình. Nhiều nhóm bất mãn → Uy tín giảm mạnh, nguy cơ mất quyền lực.",
+            "Cách xử lý: Chính phủ có thể đàm phán, truyền thông, hoặc đàn áp (mỗi lựa chọn có chi phí/rủi ro).",
+            "Điều kiện thắng: Đạt mục tiêu kịch bản (Uy tín > 60 trong 10 năm, giảm Gini, tăng sức mạnh quân sự…).",
+            "Điều kiện thua: Bị lật đổ do uy tín quá thấp hoặc đất nước rơi vào khủng hoảng toàn diện.",
+          ],
+          newsSource: "Tuổi Trẻ",
+          langBtn: "VI/EN",
+          policySimulatorTitle: "Quốc gia vs Giai cấp — Mô phỏng Chính sách",
+          policySimulatorDesc:
+            "Quản lý đất nước với vai trò Chính phủ. Chọn chính sách mỗi lượt và cân bằng lợi ích cạnh tranh.",
+          turn: "Lượt",
+          year: "Năm",
+          indicators: "Chỉ số Quốc gia",
+          socialGroups: "Nhóm Xã hội",
+          policies: "Lựa chọn Chính sách",
+          events: "Nhật ký Sự kiện",
+          gameResult: "Kết quả Game",
+          gdp: "GDP",
+          unemployment: "Thất nghiệp",
+          gini: "Gini (Bất bình đẳng)",
+          legitimacy: "Uy tín",
+          military: "Sức mạnh Quân sự",
+          publicServices: "Dịch vụ Công",
+          workers: "Công nhân",
+          middleClass: "Tầng lớp Trung lưu",
+          capitalists: "Tư bản",
+          youth: "Thanh niên/Sinh viên",
+          freelancers: "Tự do/Nông dân",
+          satisfaction: "Hài lòng",
+          low: "Thấp",
+          high: "Cao",
+          choosePolicy: "Chọn Chính sách",
+          advanceTurn: "Sang lượt",
+          reset: "Làm lại",
+          negotiate: "Đàm phán",
+          pr: "Chiến dịch PR",
+          repress: "Đàn áp",
+          randomEvent: "Sự kiện Ngẫu nhiên",
+          crisis: "Khủng hoảng Kinh tế",
+          protest: "Biểu tình Quy mô lớn",
+          scandal: "Bê bối Chính phủ",
+          win: "Chiến thắng!",
+          lose: "Thất bại!",
+          winCondition: "Bạn đã đạt được mục tiêu kịch bản!",
+          loseCondition:
+            "Uy tín của bạn sụp đổ hoặc đất nước rơi vào khủng hoảng.",
+          playAgain: "Chơi lại",
+        },
+      };
+
+      function getCases(lang) {
+        const S = STRINGS[lang];
+        return [
+          {
+            id: "usa-2011",
+            title: S.cases.usa.title,
+            summary: S.cases.usa.summary,
+            deep: S.cases.usa.deep,
+            sources: [S.cases.usa.sources],
+          },
+          {
+            id: "france-2018",
+            title: S.cases.france.title,
+            summary: S.cases.france.summary,
+            deep: S.cases.france.deep,
+            sources: [S.cases.france.sources],
+          },
+          {
+            id: "indo-2019",
+            title: S.cases.indo.title,
+            summary: S.cases.indo.summary,
+            deep: S.cases.indo.deep,
+            sources: [S.cases.indo.sources],
+          },
+        ];
+      }
+
+      const INITIAL_STATE = {
+        turn: 1,
+        maxTurns: 6,
+        conflict: 20,
+        governmentPopularity: 70,
+        feed: [],
+      };
+
+      function clamp(n, min, max) {
+        return Math.max(min, Math.min(max, n));
+      }
+
+      function ConflictMeter({ value }) {
+        const pct = clamp(value, 0, 100);
+        return (
+          <div>
+            <div className="meter" aria-label="Conflict meter">
+              <span style={{ width: `${pct}%` }} />
+            </div>
+            <div className="meter-label">
+              <span>Calm</span>
+              <span>{pct}%</span>
+              <span>Crisis</span>
+            </div>
+          </div>
+        );
+      }
+
+      function Modal({ open, onClose, children }) {
+        if (!open) return null;
+        return (
+          <div className="modal-backdrop" onClick={onClose}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              {children}
+            </div>
+          </div>
+        );
+      }
+
+      function NavBar({ lang, setLang, page, setPage }) {
+        const S = STRINGS[lang];
+        return (
+          <div className="nav">
+            <div className="nav-inner">
+              <div className="brand">The Nation's Voice</div>
+              <a
+                className={page === "home" ? "active" : ""}
+                onClick={() => setPage("home")}
+              >
+                {S.nav.home}
+              </a>
+              <a
+                className={page === "intro" ? "active" : ""}
+                onClick={() => setPage("intro")}
+              >
+                {S.nav.intro}
+              </a>
+              <a
+                className={page === "cases" ? "active" : ""}
+                onClick={() => setPage("cases")}
+              >
+                {S.nav.cases}
+              </a>
+              <a
+                className={page === "sim" ? "active" : ""}
+                onClick={() => setPage("sim")}
+              >
+                {S.nav.sim}
+              </a>
+              <a
+                className={page === "articles" ? "active" : ""}
+                onClick={() => setPage("articles")}
+              >
+                {S.nav.articles}
+              </a>
+              <div className="spacer"></div>
+              <button
+                className="btn"
+                onClick={() => setLang(lang === "vi" ? "en" : "vi")}
+              >
+                {S.langBtn}
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      function CaseStudies({ lang }) {
+        const CASES = React.useMemo(() => getCases(lang), [lang]);
+        const S = STRINGS[lang];
+        const [openId, setOpenId] = React.useState(null);
+        const [tab, setTab] = React.useState("summary");
+        const openCase = CASES.find((c) => c.id === openId);
+
+        return (
+          <>
+            {CASES.map((cs, index) => (
+              <div key={cs.id} className={`case-study-card case-${index + 1}`}>
+                <div className="case-header">
+                  <div className="case-number">
+                    <span className="case-num">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                  <div className="case-title-section">
+                    <h3 className="case-title">{cs.title}</h3>
+                    <div className="case-meta">
+                      <span className="case-source">
+                        Source: {cs.sources[0]}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="case-content">
+                  <p className="case-summary">{cs.summary}</p>
+                </div>
+
+                <div className="case-footer">
+                  <button
+                    className="case-read-btn"
+                    onClick={() => {
+                      setOpenId(cs.id);
+                      setTab("summary");
+                    }}
+                  >
+                    {lang === "vi" ? "Đọc chi tiết" : "Read More"}
+                  </button>
+                  <div className="case-tags">
+                    <span className="case-tag">
+                      {cs.id.includes("usa")
+                        ? lang === "vi"
+                          ? "Mỹ"
+                          : "USA"
+                        : cs.id.includes("france")
+                        ? lang === "vi"
+                          ? "Pháp"
+                          : "France"
+                        : cs.id.includes("indo")
+                        ? "Indonesia"
+                        : "Global"}
+                    </span>
+                    <span className="case-year">
+                      {cs.id.includes("2011")
+                        ? "2011"
+                        : cs.id.includes("2018")
+                        ? "2018-2019"
+                        : "2019"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <Modal open={!!openId} onClose={() => setOpenId(null)}>
+              {openCase && (
+                <>
+                  <div className="modal-header">
+                    <h2 className="modal-title">{openCase.title}</h2>
+                    <div className="modal-meta">
+                      <span className="modal-source">
+                        Source: {openCase.sources.join(", ")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="modal-tabs">
+                    <button
+                      className={`modal-tab ${
+                        tab === "summary" ? "active" : ""
+                      }`}
+                      onClick={() => setTab("summary")}
+                    >
+                      {S.summaryTab}
+                    </button>
+                    <button
+                      className={`modal-tab ${tab === "deep" ? "active" : ""}`}
+                      onClick={() => setTab("deep")}
+                    >
+                      {S.deepTab}
+                    </button>
+                  </div>
+
+                  <div className="modal-content">
+                    {tab === "summary" ? (
+                      <div className="content-section">
+                        <h4>{S.summaryTab}</h4>
+                        <p className="content-text">{openCase.summary}</p>
+                      </div>
+                    ) : (
+                      <div className="content-section">
+                        <h4>{S.deepTab} Analysis</h4>
+                        <p className="content-text">{openCase.deep}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="modal-actions">
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => setOpenId(null)}
+                    >
+                      {S.close}
+                    </button>
+                  </div>
+                </>
+              )}
+            </Modal>
+          </>
+        );
+      }
+
+      // Policy Simulator Game State
+      const POLICY_SIMULATOR_INITIAL = {
+        turn: 1,
+        maxTurns: 10,
+        indicators: {
+          gdp: 85,
+          unemployment: 25,
+          gini: 0.45,
+          legitimacy: 70,
+          military: 60,
+          publicServices: 65,
+        },
+        socialGroups: {
+          workers: 60,
+          middleClass: 70,
+          capitalists: 80,
+          youth: 55,
+          freelancers: 65,
+        },
+        selectedPolicy: null,
+        events: [],
+        gameEnded: false,
+        gameWon: false,
+        pendingResponse: null,
+      };
+
+      const POLICIES = {
+        en: [
+          {
+            id: "tax_cut",
+            name: "Tax Cut",
+            description: "Reduce corporate taxes to boost business investment",
+            effects: {
+              gdp: 10,
+              unemployment: -5,
+              gini: 5,
+              capitalists: 15,
+              middleClass: 5,
+              workers: -5,
+            },
+          },
+          {
+            id: "welfare_increase",
+            name: "Welfare Increase",
+            description: "Expand social safety nets and public services",
+            effects: {
+              gdp: -5,
+              unemployment: 2,
+              gini: -8,
+              legitimacy: 10,
+              publicServices: 15,
+              workers: 12,
+              middleClass: 8,
+              freelancers: 10,
+            },
+          },
+          {
+            id: "military_buildup",
+            name: "Military Buildup",
+            description: "Increase defense spending and military capabilities",
+            effects: {
+              gdp: -3,
+              military: 20,
+              legitimacy: 5,
+              capitalists: 8,
+              workers: -3,
+              youth: -8,
+            },
+          },
+          {
+            id: "education_reform",
+            name: "Education Reform",
+            description: "Invest in education and skills training programs",
+            effects: {
+              gdp: 5,
+              unemployment: -8,
+              publicServices: 12,
+              youth: 15,
+              workers: 8,
+              middleClass: 5,
+            },
+          },
+          {
+            id: "infrastructure",
+            name: "Infrastructure Investment",
+            description: "Major public works and transportation projects",
+            effects: {
+              gdp: 15,
+              unemployment: -10,
+              legitimacy: 8,
+              publicServices: 10,
+              workers: 10,
+              middleClass: 5,
+            },
+          },
+          {
+            id: "environmental",
+            name: "Environmental Policy",
+            description: "Green energy transition and environmental protection",
+            effects: {
+              gdp: -2,
+              unemployment: 3,
+              legitimacy: 12,
+              capitalists: -5,
+              youth: 18,
+              freelancers: -3,
+            },
+          },
+          {
+            id: "fuel_tax",
+            name: "Fuel Tax Increase",
+            description: "Raise fuel taxes to fund infrastructure",
+            effects: {
+              gdp: 3,
+              unemployment: 2,
+              gini: 8,
+              legitimacy: -15,
+              publicServices: 8,
+              workers: -25,
+              middleClass: -15,
+              freelancers: -20,
+              capitalists: 5,
+            },
+          },
+          {
+            id: "pension_cut",
+            name: "Pension Reform",
+            description: "Cut public pensions to reduce budget deficit",
+            effects: {
+              gdp: 8,
+              unemployment: 1,
+              gini: 12,
+              legitimacy: -20,
+              publicServices: -5,
+              workers: -30,
+              middleClass: -10,
+              freelancers: -15,
+              capitalists: 10,
+            },
+          },
+          {
+            id: "austerity",
+            name: "Austerity Measures",
+            description: "Budget cuts to public services and social programs",
+            effects: {
+              gdp: 5,
+              unemployment: 8,
+              gini: 10,
+              legitimacy: -25,
+              publicServices: -20,
+              workers: -35,
+              middleClass: -20,
+              freelancers: -25,
+              capitalists: 8,
+            },
+          },
+          {
+            id: "minimum_wage",
+            name: "Minimum Wage Increase",
+            description: "Raise minimum wage to improve living standards",
+            effects: {
+              gdp: -2,
+              unemployment: 3,
+              gini: -5,
+              legitimacy: 8,
+              workers: 20,
+              middleClass: 5,
+              capitalists: -10,
+              freelancers: 8,
+            },
+          },
+          {
+            id: "corporate_tax",
+            name: "Corporate Tax Hike",
+            description: "Increase corporate tax rates for revenue",
+            effects: {
+              gdp: -3,
+              unemployment: 2,
+              gini: -3,
+              legitimacy: 5,
+              publicServices: 8,
+              capitalists: -15,
+              middleClass: 3,
+              workers: 5,
+            },
+          },
+          {
+            id: "healthcare_cut",
+            name: "Healthcare Cuts",
+            description: "Reduce public healthcare spending",
+            effects: {
+              gdp: 6,
+              unemployment: 1,
+              gini: 8,
+              legitimacy: -18,
+              publicServices: -15,
+              workers: -20,
+              middleClass: -15,
+              freelancers: -18,
+              capitalists: 8,
+            },
+          },
+          {
+            id: "education_cut",
+            name: "Education Cuts",
+            description: "Reduce public education funding",
+            effects: {
+              gdp: 4,
+              unemployment: 2,
+              gini: 6,
+              legitimacy: -12,
+              publicServices: -12,
+              youth: -25,
+              workers: -8,
+              middleClass: -10,
+              freelancers: -12,
+            },
+          },
+          {
+            id: "labor_reform",
+            name: "Labor Market Reform",
+            description: "Deregulate labor market for flexibility",
+            effects: {
+              gdp: 8,
+              unemployment: -3,
+              gini: 8,
+              legitimacy: -8,
+              workers: -15,
+              middleClass: -5,
+              capitalists: 18,
+              youth: -10,
+            },
+          },
+          {
+            id: "wealth_tax",
+            name: "Wealth Tax",
+            description: "Tax on high net worth individuals",
+            effects: {
+              gdp: -1,
+              unemployment: 1,
+              gini: -12,
+              legitimacy: 12,
+              publicServices: 10,
+              capitalists: -20,
+              middleClass: 8,
+              workers: 8,
+            },
+          },
+          {
+            id: "carbon_tax",
+            name: "Carbon Tax",
+            description: "Tax on carbon emissions",
+            effects: {
+              gdp: -2,
+              unemployment: 2,
+              gini: 3,
+              legitimacy: 8,
+              capitalists: -8,
+              middleClass: -3,
+              workers: -5,
+              youth: 12,
+              freelancers: -8,
+            },
+          },
+          {
+            id: "universal_income",
+            name: "Universal Basic Income",
+            description: "Provide basic income to all citizens",
+            effects: {
+              gdp: -8,
+              unemployment: 5,
+              gini: -15,
+              legitimacy: 15,
+              publicServices: 5,
+              workers: 25,
+              middleClass: 15,
+              freelancers: 20,
+              capitalists: -12,
+            },
+          },
+          {
+            id: "military_cut",
+            name: "Defense Spending Cut",
+            description: "Reduce military budget",
+            effects: {
+              gdp: 2,
+              unemployment: 1,
+              gini: 2,
+              legitimacy: -5,
+              military: -15,
+              capitalists: -5,
+              workers: 3,
+              middleClass: 5,
+              youth: 8,
+            },
+          },
+        ],
+        vi: [
+          {
+            id: "tax_cut",
+            name: "Giảm Thuế",
+            description: "Giảm thuế doanh nghiệp để thúc đẩy đầu tư kinh doanh",
+            effects: {
+              gdp: 10,
+              unemployment: -5,
+              gini: 5,
+              capitalists: 15,
+              middleClass: 5,
+              workers: -5,
+            },
+          },
+          {
+            id: "welfare_increase",
+            name: "Tăng Phúc lợi",
+            description: "Mở rộng mạng lưới an sinh xã hội và dịch vụ công",
+            effects: {
+              gdp: -5,
+              unemployment: 2,
+              gini: -8,
+              legitimacy: 10,
+              publicServices: 15,
+              workers: 12,
+              middleClass: 8,
+              freelancers: 10,
+            },
+          },
+          {
+            id: "military_buildup",
+            name: "Tăng cường Quân sự",
+            description: "Tăng chi tiêu quốc phòng và năng lực quân sự",
+            effects: {
+              gdp: -3,
+              military: 20,
+              legitimacy: 5,
+              capitalists: 8,
+              workers: -3,
+              youth: -8,
+            },
+          },
+          {
+            id: "education_reform",
+            name: "Cải cách Giáo dục",
+            description: "Đầu tư vào giáo dục và chương trình đào tạo kỹ năng",
+            effects: {
+              gdp: 5,
+              unemployment: -8,
+              publicServices: 12,
+              youth: 15,
+              workers: 8,
+              middleClass: 5,
+            },
+          },
+          {
+            id: "infrastructure",
+            name: "Đầu tư Hạ tầng",
+            description: "Các dự án công trình công cộng và giao thông lớn",
+            effects: {
+              gdp: 15,
+              unemployment: -10,
+              legitimacy: 8,
+              publicServices: 10,
+              workers: 10,
+              middleClass: 5,
+            },
+          },
+          {
+            id: "environmental",
+            name: "Chính sách Môi trường",
+            description: "Chuyển đổi năng lượng xanh và bảo vệ môi trường",
+            effects: {
+              gdp: -2,
+              unemployment: 3,
+              legitimacy: 12,
+              capitalists: -5,
+              youth: 18,
+              freelancers: -3,
+            },
+          },
+          {
+            id: "fuel_tax",
+            name: "Tăng Thuế Xăng",
+            description: "Tăng thuế xăng để tài trợ hạ tầng",
+            effects: {
+              gdp: 3,
+              unemployment: 2,
+              gini: 8,
+              legitimacy: -15,
+              publicServices: 8,
+              workers: -25,
+              middleClass: -15,
+              freelancers: -20,
+              capitalists: 5,
+            },
+          },
+          {
+            id: "pension_cut",
+            name: "Cắt Giảm Lương Hưu",
+            description: "Cắt giảm lương hưu công để giảm thâm hụt ngân sách",
+            effects: {
+              gdp: 8,
+              unemployment: 1,
+              gini: 12,
+              legitimacy: -20,
+              publicServices: -5,
+              workers: -30,
+              middleClass: -10,
+              freelancers: -15,
+              capitalists: 10,
+            },
+          },
+          {
+            id: "austerity",
+            name: "Thắt Lưng Buộc Bụng",
+            description:
+              "Cắt giảm ngân sách dịch vụ công và chương trình xã hội",
+            effects: {
+              gdp: 5,
+              unemployment: 8,
+              gini: 10,
+              legitimacy: -25,
+              publicServices: -20,
+              workers: -35,
+              middleClass: -20,
+              freelancers: -25,
+              capitalists: 8,
+            },
+          },
+          {
+            id: "minimum_wage",
+            name: "Tăng Lương Tối Thiểu",
+            description: "Tăng lương tối thiểu để cải thiện mức sống",
+            effects: {
+              gdp: -2,
+              unemployment: 3,
+              gini: -5,
+              legitimacy: 8,
+              workers: 20,
+              middleClass: 5,
+              capitalists: -10,
+              freelancers: 8,
+            },
+          },
+          {
+            id: "corporate_tax",
+            name: "Tăng Thuế Doanh Nghiệp",
+            description: "Tăng thuế suất doanh nghiệp để tăng thu ngân sách",
+            effects: {
+              gdp: -3,
+              unemployment: 2,
+              gini: -3,
+              legitimacy: 5,
+              publicServices: 8,
+              capitalists: -15,
+              middleClass: 3,
+              workers: 5,
+            },
+          },
+          {
+            id: "healthcare_cut",
+            name: "Cắt Giảm Y Tế",
+            description: "Giảm chi tiêu y tế công",
+            effects: {
+              gdp: 6,
+              unemployment: 1,
+              gini: 8,
+              legitimacy: -18,
+              publicServices: -15,
+              workers: -20,
+              middleClass: -15,
+              freelancers: -18,
+              capitalists: 8,
+            },
+          },
+          {
+            id: "education_cut",
+            name: "Cắt Giảm Giáo Dục",
+            description: "Giảm ngân sách giáo dục công",
+            effects: {
+              gdp: 4,
+              unemployment: 2,
+              gini: 6,
+              legitimacy: -12,
+              publicServices: -12,
+              youth: -25,
+              workers: -8,
+              middleClass: -10,
+              freelancers: -12,
+            },
+          },
+          {
+            id: "labor_reform",
+            name: "Cải Cách Thị Trường Lao Động",
+            description:
+              "Bãi bỏ quy định thị trường lao động để tăng linh hoạt",
+            effects: {
+              gdp: 8,
+              unemployment: -3,
+              gini: 8,
+              legitimacy: -8,
+              workers: -15,
+              middleClass: -5,
+              capitalists: 18,
+              youth: -10,
+            },
+          },
+          {
+            id: "wealth_tax",
+            name: "Thuế Tài Sản",
+            description: "Đánh thuế người có tài sản cao",
+            effects: {
+              gdp: -1,
+              unemployment: 1,
+              gini: -12,
+              legitimacy: 12,
+              publicServices: 10,
+              capitalists: -20,
+              middleClass: 8,
+              workers: 8,
+            },
+          },
+          {
+            id: "carbon_tax",
+            name: "Thuế Carbon",
+            description: "Đánh thuế phát thải carbon",
+            effects: {
+              gdp: -2,
+              unemployment: 2,
+              gini: 3,
+              legitimacy: 8,
+              capitalists: -8,
+              middleClass: -3,
+              workers: -5,
+              youth: 12,
+              freelancers: -8,
+            },
+          },
+          {
+            id: "universal_income",
+            name: "Thu Nhập Cơ Bản Toàn Dân",
+            description: "Cung cấp thu nhập cơ bản cho mọi công dân",
+            effects: {
+              gdp: -8,
+              unemployment: 5,
+              gini: -15,
+              legitimacy: 15,
+              publicServices: 5,
+              workers: 25,
+              middleClass: 15,
+              freelancers: 20,
+              capitalists: -12,
+            },
+          },
+          {
+            id: "military_cut",
+            name: "Cắt Giảm Quốc Phòng",
+            description: "Giảm ngân sách quân sự",
+            effects: {
+              gdp: 2,
+              unemployment: 1,
+              gini: 2,
+              legitimacy: -5,
+              military: -15,
+              capitalists: -5,
+              workers: 3,
+              middleClass: 5,
+              youth: 8,
+            },
+          },
+        ],
+      };
+
+      const RANDOM_EVENTS = {
+        en: [
+          {
+            id: "crisis",
+            name: "Economic Crisis",
+            description: "Global economic downturn affects the country",
+            effects: {
+              gdp: -15,
+              unemployment: 10,
+              legitimacy: -10,
+              capitalists: -10,
+              middleClass: -15,
+              workers: -20,
+            },
+          },
+          {
+            id: "protest",
+            name: "Mass Protest",
+            description:
+              "Large-scale demonstrations against government policies",
+            effects: {
+              legitimacy: -15,
+              workers: -10,
+              youth: -15,
+              middleClass: -5,
+            },
+            requiresResponse: true,
+          },
+          {
+            id: "scandal",
+            name: "Government Scandal",
+            description: "Corruption scandal shakes public confidence",
+            effects: {
+              legitimacy: -20,
+              capitalists: -5,
+              middleClass: -10,
+              youth: -15,
+            },
+          },
+        ],
+        vi: [
+          {
+            id: "crisis",
+            name: "Khủng hoảng Kinh tế",
+            description: "Suy thoái kinh tế toàn cầu ảnh hưởng đến đất nước",
+            effects: {
+              gdp: -15,
+              unemployment: 10,
+              legitimacy: -10,
+              capitalists: -10,
+              middleClass: -15,
+              workers: -20,
+            },
+          },
+          {
+            id: "protest",
+            name: "Biểu tình Quy mô lớn",
+            description:
+              "Các cuộc biểu tình lớn chống lại chính sách của chính phủ",
+            effects: {
+              legitimacy: -15,
+              workers: -10,
+              youth: -15,
+              middleClass: -5,
+            },
+            requiresResponse: true,
+          },
+          {
+            id: "scandal",
+            name: "Bê bối Chính phủ",
+            description:
+              "Bê bối tham nhũng làm rung chuyển lòng tin của công chúng",
+            effects: {
+              legitimacy: -20,
+              capitalists: -5,
+              middleClass: -10,
+              youth: -15,
+            },
+          },
+        ],
+      };
+
+      const GOVERNMENT_RESPONSES = {
+        en: [
+          {
+            id: "negotiate",
+            name: "Negotiate",
+            description: "Engage in dialogue and compromise with protesters",
+            effects: {
+              legitimacy: 5,
+              workers: 8,
+              youth: 5,
+              middleClass: 3,
+              gdp: -2,
+            },
+            cost: 5,
+          },
+          {
+            id: "pr",
+            name: "PR Campaign",
+            description: "Launch public relations campaign to improve image",
+            effects: { legitimacy: 8, capitalists: 3, middleClass: 5, gdp: -3 },
+            cost: 8,
+          },
+          {
+            id: "repress",
+            name: "Repress",
+            description: "Use force to suppress protests (risky)",
+            effects: {
+              legitimacy: -10,
+              workers: -15,
+              youth: -20,
+              capitalists: 5,
+              military: 5,
+            },
+            cost: 3,
+            risk: 0.3,
+          },
+        ],
+        vi: [
+          {
+            id: "negotiate",
+            name: "Đàm phán",
+            description: "Tham gia đối thoại và thỏa hiệp với người biểu tình",
+            effects: {
+              legitimacy: 5,
+              workers: 8,
+              youth: 5,
+              middleClass: 3,
+              gdp: -2,
+            },
+            cost: 5,
+          },
+          {
+            id: "pr",
+            name: "Chiến dịch PR",
+            description:
+              "Phát động chiến dịch quan hệ công chúng để cải thiện hình ảnh",
+            effects: { legitimacy: 8, capitalists: 3, middleClass: 5, gdp: -3 },
+            cost: 8,
+          },
+          {
+            id: "repress",
+            name: "Đàn áp",
+            description: "Sử dụng vũ lực để đàn áp biểu tình (rủi ro)",
+            effects: {
+              legitimacy: -10,
+              workers: -15,
+              youth: -20,
+              capitalists: 5,
+              military: 5,
+            },
+            cost: 3,
+            risk: 0.3,
+          },
+        ],
+      };
+
+      function PolicySimulator({ lang }) {
+        const S = STRINGS[lang];
+        const [gameState, setGameState] = React.useState(() => ({
+          ...POLICY_SIMULATOR_INITIAL,
+        }));
+        const [showResult, setShowResult] = React.useState(false);
+
+        const policies = POLICIES[lang];
+        const randomEvents = RANDOM_EVENTS[lang];
+        const responses = GOVERNMENT_RESPONSES[lang];
+
+        const applyPolicy = React.useCallback((policy) => {
+          setGameState((prev) => {
+            const newState = { ...prev };
+
+            // Apply policy effects
+            Object.entries(policy.effects).forEach(([key, value]) => {
+              if (newState.indicators[key] !== undefined) {
+                newState.indicators[key] = clamp(
+                  newState.indicators[key] + value,
+                  0,
+                  100
+                );
+              }
+              if (newState.socialGroups[key] !== undefined) {
+                newState.socialGroups[key] = clamp(
+                  newState.socialGroups[key] + value,
+                  0,
+                  100
+                );
+              }
+            });
+
+            // Add event log
+            newState.events.unshift({
+              id: Date.now(),
+              type: "policy",
+              title: policy.name,
+              description: policy.description,
+              turn: newState.turn,
+            });
+
+            newState.selectedPolicy = policy.id;
+            return newState;
+          });
+        }, []);
+
+        const applyResponse = React.useCallback(
+          (response) => {
+            setGameState((prev) => {
+              const newState = { ...prev };
+
+              // Apply response effects
+              Object.entries(response.effects).forEach(([key, value]) => {
+                if (newState.indicators[key] !== undefined) {
+                  newState.indicators[key] = clamp(
+                    newState.indicators[key] + value,
+                    0,
+                    100
+                  );
+                }
+                if (newState.socialGroups[key] !== undefined) {
+                  newState.socialGroups[key] = clamp(
+                    newState.socialGroups[key] + value,
+                    0,
+                    100
+                  );
+                }
+              });
+
+              // Check for risk (repression can backfire)
+              if (response.risk && Math.random() < response.risk) {
+                newState.indicators.legitimacy = clamp(
+                  newState.indicators.legitimacy - 15,
+                  0,
+                  100
+                );
+                newState.events.unshift({
+                  id: Date.now(),
+                  type: "response",
+                  title:
+                    lang === "vi"
+                      ? "Đàn áp phản tác dụng"
+                      : "Repression Backfires",
+                  description:
+                    lang === "vi"
+                      ? "Việc đàn áp gây phản ứng dữ dội từ công chúng"
+                      : "Repression causes public backlash",
+                  turn: newState.turn,
+                });
+              }
+
+              // Add event log
+              newState.events.unshift({
+                id: Date.now(),
+                type: "response",
+                title: response.name,
+                description: response.description,
+                turn: newState.turn,
+              });
+
+              newState.pendingResponse = null;
+              return newState;
+            });
+          },
+          [lang]
+        );
+
+        const advanceTurn = React.useCallback(() => {
+          setGameState((prev) => {
+            const newState = { ...prev };
+
+            // Check for random events (20% chance)
+            if (Math.random() < 0.2) {
+              const event =
+                randomEvents[Math.floor(Math.random() * randomEvents.length)];
+              Object.entries(event.effects).forEach(([key, value]) => {
+                if (newState.indicators[key] !== undefined) {
+                  newState.indicators[key] = clamp(
+                    newState.indicators[key] + value,
+                    0,
+                    100
+                  );
+                }
+                if (newState.socialGroups[key] !== undefined) {
+                  newState.socialGroups[key] = clamp(
+                    newState.socialGroups[key] + value,
+                    0,
+                    100
+                  );
+                }
+              });
+
+              newState.events.unshift({
+                id: Date.now(),
+                type: "event",
+                title: event.name,
+                description: event.description,
+                turn: newState.turn,
+              });
+
+              // If event requires response, set pending response
+              if (event.requiresResponse) {
+                newState.pendingResponse = event.id;
+              }
+            }
+
+            // Check for protests/strikes
+            const dissatisfiedGroups = Object.entries(
+              newState.socialGroups
+            ).filter(([_, satisfaction]) => satisfaction < 40);
+            if (dissatisfiedGroups.length >= 2 && !newState.pendingResponse) {
+              newState.indicators.legitimacy = clamp(
+                newState.indicators.legitimacy - 10,
+                0,
+                100
+              );
+              newState.events.unshift({
+                id: Date.now(),
+                type: "protest",
+                title:
+                  lang === "vi"
+                    ? "Biểu tình và Đình công"
+                    : "Protests and Strikes",
+                description:
+                  lang === "vi"
+                    ? "Nhiều nhóm xã hội bất mãn tổ chức phản kháng"
+                    : "Multiple dissatisfied social groups organize resistance",
+                turn: newState.turn,
+              });
+              newState.pendingResponse = "protest";
+            }
+
+            newState.turn += 1;
+            newState.selectedPolicy = null;
+
+            // Check win/lose conditions
+            if (newState.turn > newState.maxTurns) {
+              newState.gameEnded = true;
+              newState.gameWon =
+                newState.indicators.legitimacy >= 60 &&
+                newState.indicators.gini <= 0.35;
+              setShowResult(true);
+            } else if (newState.indicators.legitimacy < 20) {
+              newState.gameEnded = true;
+              newState.gameWon = false;
+              setShowResult(true);
+            }
+
+            return newState;
+          });
+        }, [lang, randomEvents]);
+
+        const reset = React.useCallback(() => {
+          setGameState({
+            turn: 1,
+            maxTurns: 10,
+            indicators: {
+              gdp: 85,
+              unemployment: 25,
+              gini: 0.45,
+              legitimacy: 70,
+              military: 60,
+              publicServices: 65,
+            },
+            socialGroups: {
+              workers: 60,
+              middleClass: 70,
+              capitalists: 80,
+              youth: 55,
+              freelancers: 65,
+            },
+            selectedPolicy: null,
+            events: [],
+            gameEnded: false,
+            gameWon: false,
+            pendingResponse: null,
+          });
+          setShowResult(false);
+        }, []);
+
+        if (showResult) {
+          return (
+            <div className="card" style={{ gridColumn: "span 12" }}>
+              <h3>{S.gameResult}</h3>
+              <div style={{ textAlign: "center", padding: "20px" }}>
+                <h2
+                  style={{
+                    color: gameState.gameWon ? "var(--ok)" : "var(--danger)",
+                    margin: "0 0 10px 0",
+                  }}
+                >
+                  {gameState.gameWon ? S.win : S.lose}
+                </h2>
+                <p style={{ margin: "0 0 20px 0", color: "var(--muted)" }}>
+                  {gameState.gameWon ? S.winCondition : S.loseCondition}
+                </p>
+                <button className="btn primary" onClick={reset}>
+                  {S.playAgain}
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="simulator-container">
+            {/* Game Status Bar */}
+            <div className="game-status-bar">
+              <div className="status-info">
+                <span className="status-item">
+                  <span className="status-label">{S.turn}</span>
+                  <span className="status-value">
+                    {gameState.turn}/{gameState.maxTurns}
+                  </span>
+                </span>
+                <span className="status-item">
+                  <span className="status-label">{S.year}</span>
+                  <span className="status-value">{2020 + gameState.turn}</span>
+                </span>
+              </div>
+              <div className="game-controls">
+                <button
+                  className="btn btn-primary"
+                  disabled={
+                    gameState.gameEnded ||
+                    !gameState.selectedPolicy ||
+                    gameState.pendingResponse
+                  }
+                  onClick={advanceTurn}
+                >
+                  {S.advanceTurn}
+                </button>
+                <button className="btn btn-ghost" onClick={reset}>
+                  {S.reset}
+                </button>
+              </div>
+            </div>
+
+            {/* Main Game Grid */}
+            <div className="simulator-grid">
+              {/* National Indicators Dashboard */}
+              <div className="sim-panel indicators-panel">
+                <div className="panel-header">
+                  <h3 className="panel-title">{S.indicators}</h3>
+                  <div className="panel-accent indicators-accent"></div>
+                </div>
+                <div className="indicators-grid">
+                  <div className="indicator-card gdp-card">
+                    <div className="indicator-header">
+                      <span className="indicator-label">{S.gdp}</span>
+                      <span className="indicator-value">
+                        {gameState.indicators.gdp}%
+                      </span>
+                    </div>
+                    <div className="indicator-bar">
+                      <div
+                        className="indicator-fill gdp-fill"
+                        style={{ width: `${gameState.indicators.gdp}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="indicator-card unemployment-card">
+                    <div className="indicator-header">
+                      <span className="indicator-label">{S.unemployment}</span>
+                      <span className="indicator-value">
+                        {gameState.indicators.unemployment}%
+                      </span>
+                    </div>
+                    <div className="indicator-bar">
+                      <div
+                        className="indicator-fill unemployment-fill"
+                        style={{
+                          width: `${gameState.indicators.unemployment}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="indicator-card gini-card">
+                    <div className="indicator-header">
+                      <span className="indicator-label">{S.gini}</span>
+                      <span className="indicator-value">
+                        {gameState.indicators.gini.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="indicator-bar">
+                      <div
+                        className="indicator-fill gini-fill"
+                        style={{ width: `${gameState.indicators.gini * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="indicator-card legitimacy-card">
+                    <div className="indicator-header">
+                      <span className="indicator-label">{S.legitimacy}</span>
+                      <span className="indicator-value">
+                        {gameState.indicators.legitimacy}%
+                      </span>
+                    </div>
+                    <div className="indicator-bar">
+                      <div
+                        className="indicator-fill legitimacy-fill"
+                        style={{ width: `${gameState.indicators.legitimacy}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="indicator-card military-card">
+                    <div className="indicator-header">
+                      <span className="indicator-label">{S.military}</span>
+                      <span className="indicator-value">
+                        {gameState.indicators.military}%
+                      </span>
+                    </div>
+                    <div className="indicator-bar">
+                      <div
+                        className="indicator-fill military-fill"
+                        style={{ width: `${gameState.indicators.military}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="indicator-card services-card">
+                    <div className="indicator-header">
+                      <span className="indicator-label">
+                        {S.publicServices}
+                      </span>
+                      <span className="indicator-value">
+                        {gameState.indicators.publicServices}%
+                      </span>
+                    </div>
+                    <div className="indicator-bar">
+                      <div
+                        className="indicator-fill services-fill"
+                        style={{
+                          width: `${gameState.indicators.publicServices}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Groups Panel */}
+              <div className="sim-panel groups-panel">
+                <div className="panel-header">
+                  <h3 className="panel-title">{S.socialGroups}</h3>
+                  <div className="panel-accent groups-accent"></div>
+                </div>
+                <div className="groups-grid">
+                  {Object.entries(gameState.socialGroups).map(
+                    ([group, satisfaction]) => (
+                      <div key={group} className="group-card">
+                        <div className="group-header">
+                          <span className="group-name">
+                            {S[group] || group}
+                          </span>
+                          <span className="group-satisfaction">
+                            {satisfaction}%
+                          </span>
+                        </div>
+                        <div className="satisfaction-bar">
+                          <div
+                            className={`satisfaction-fill ${
+                              satisfaction < 40 ? "dissatisfied" : "satisfied"
+                            }`}
+                            style={{ width: `${satisfaction}%` }}
+                          ></div>
+                        </div>
+                        <div className="group-status">
+                          {satisfaction < 30 && (
+                            <span className="status-badge crisis">
+                              {lang === "vi" ? "Khủng hoảng" : "Crisis"}
+                            </span>
+                          )}
+                          {satisfaction >= 30 && satisfaction < 50 && (
+                            <span className="status-badge warning">
+                              {lang === "vi" ? "Bất mãn" : "Dissatisfied"}
+                            </span>
+                          )}
+                          {satisfaction >= 70 && (
+                            <span className="status-badge success">
+                              {lang === "vi" ? "Hài lòng" : "Satisfied"}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+
+              {/* Policy Choices Panel */}
+              <div className="sim-panel policies-panel">
+                <div className="panel-header">
+                  <h3 className="panel-title">{S.policies}</h3>
+                  <div className="panel-accent policies-accent"></div>
+                </div>
+                <div className="policies-container">
+                  <div className="policies-scroll">
+                    {policies.map((policy) => (
+                      <div
+                        key={policy.id}
+                        className={`policy-card ${
+                          gameState.selectedPolicy === policy.id
+                            ? "selected"
+                            : ""
+                        }`}
+                      >
+                        <button
+                          className="policy-btn"
+                          disabled={
+                            gameState.gameEnded ||
+                            gameState.selectedPolicy !== null
+                          }
+                          onClick={() => applyPolicy(policy)}
+                        >
+                          <div className="policy-content">
+                            <h4 className="policy-name">{policy.name}</h4>
+                            <p className="policy-description">
+                              {policy.description}
+                            </p>
+                            {gameState.selectedPolicy === policy.id && (
+                              <div className="policy-selected">
+                                <span className="selected-badge">
+                                  {lang === "vi" ? "Đã chọn" : "Selected"}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Government Response Section */}
+                  {gameState.pendingResponse && (
+                    <div className="response-panel">
+                      <div className="response-header">
+                        <h4 className="response-title">
+                          {lang === "vi"
+                            ? "Cần Phản ứng của Chính phủ"
+                            : "Government Response Required"}
+                        </h4>
+                        <p className="response-desc">
+                          {lang === "vi"
+                            ? "Chọn cách phản ứng với tình huống hiện tại:"
+                            : "Choose how to respond to the current situation:"}
+                        </p>
+                      </div>
+                      <div className="response-options">
+                        {responses.map((response) => (
+                          <button
+                            key={response.id}
+                            className="response-btn"
+                            onClick={() => applyResponse(response)}
+                          >
+                            <div className="response-content">
+                              <h5 className="response-name">{response.name}</h5>
+                              <p className="response-description">
+                                {response.description}
+                              </p>
+                              {response.risk && (
+                                <div className="response-risk">
+                                  {lang === "vi"
+                                    ? `Rủi ro: ${Math.round(
+                                        response.risk * 100
+                                      )}%`
+                                    : `Risk: ${Math.round(
+                                        response.risk * 100
+                                      )}%`}
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Events Timeline Panel */}
+              <div className="sim-panel events-panel">
+                <div className="panel-header">
+                  <h3 className="panel-title">{S.events}</h3>
+                  <div className="panel-accent events-accent"></div>
+                </div>
+                <div className="events-timeline">
+                  {gameState.events.slice(0, 8).map((event) => (
+                    <div key={event.id} className="event-card">
+                      <div className="event-indicator">
+                        <div className={`event-dot ${event.type}-dot`}></div>
+                      </div>
+                      <div className="event-content">
+                        <h5 className="event-title">{event.title}</h5>
+                        <p className="event-description">{event.description}</p>
+                        <div className="event-meta">
+                          <span className="event-turn">
+                            {S.turn} {event.turn}
+                          </span>
+                          <span className="event-type-badge">
+                            {event.type === "policy"
+                              ? S.choosePolicy ||
+                                (lang === "vi" ? "Chính sách" : "Policy")
+                              : event.type === "event"
+                              ? S.randomEvent ||
+                                (lang === "vi" ? "Sự kiện" : "Event")
+                              : event.type === "response"
+                              ? lang === "vi"
+                                ? "Phản ứng"
+                                : "Response"
+                              : event.type === "protest"
+                              ? lang === "vi"
+                                ? "Biểu tình"
+                                : "Protest"
+                              : ""}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {gameState.events.length === 0 && (
+                    <div className="no-events">
+                      <p>
+                        {lang === "vi"
+                          ? "Chưa có sự kiện nào..."
+                          : "No events yet..."}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function Articles({ lang }) {
+        const S = STRINGS[lang];
+        const items = [
+          {
+            id: "art-usa",
+            title:
+              lang === "vi"
+                ? "Mỹ — 'We are the 99%' (2011)"
+                : "USA — 'We are the 99%' (2011)",
+            img: "img/Wall.jpg",
+            brief:
+              lang === "vi"
+                ? "TT - Một nhóm các nhà hoạt động phong trào “Chiếm lấy Phố Wall” đã mua lại khoản nợ hơn 15 triệu USD của người dân Mỹ trong năm qua và xóa nợ cho họ."
+                : "TT - A group of Occupy Wall Street activists bought more than $15 million in debt from Americans last year and canceled their debt.",
+            source:
+              "https://tuoitre.vn/chiem-lay-pho-wall-xoa-no-cho-dan-my-580416.htm",
+            sourceLabel: "Tuổi Trẻ",
+          },
+          {
+            id: "art-fr",
+            title:
+              lang === "vi"
+                ? "Pháp — Áo Vàng (2018–2019)"
+                : "France — Gilets Jaunes (2018–2019)",
+            img: "img/Yellow.jpg",
+            brief:
+              lang === "vi"
+                ? "TTO - Những người phản đối tăng giá xăng dầu ở Pháp đã sử dụng áo phản quang bảo hộ màu vàng làm dấu hiệu tập hợp. Các nhà nghiên cứu đã phân tích ba yếu tố cơ bản thúc đẩy họ xuống đường."
+                : "TTO - Protesters against rising fuel prices in France used yellow reflective safety vests as rallying signals. Researchers have analyzed three basic factors that motivated them to take to the streets.",
+            source:
+              "https://tuoitre.vn/vi-dau-con-gian-ao-khoac-vang-o-phap-20181204153230927.htm",
+            sourceLabel: "Tuổi Trẻ",
+          },
+          {
+            id: "art-indo",
+            title:
+              lang === "vi"
+                ? "Indonesia — Biểu tình sinh viên (2019)"
+                : "Indonesia — Student Protests (2019)",
+            img: "img/Student.jpg",
+            brief:
+              lang === "vi"
+                ? "Ngày 2-9, cảnh sát Indonesia bắn hơi cay vào đám đông người biểu tình gần hai trường đại học ở thành phố Bandung, gây tranh cãi về vấn đề nhân quyền."
+                : "On September 2, Indonesian police fired tear gas into a crowd of protesters near two universities in Bandung city, sparking controversy over human rights issues.",
+            source:
+              "https://tuoitre.vn/bieu-tinh-indonesia-canh-sat-ban-hoi-cay-gan-truong-dai-hoc-cac-to-chuc-nhan-quyen-phan-no-20250902140300585.htm",
+            sourceLabel: "Tuổi Trẻ",
+          },
+        ];
+
+        return (
+          <div className="articles-content">
+            <div className="articles-section">
+              <div className="articles-grid">
+                {items.map((article, index) => (
+                  <article
+                    key={article.id}
+                    className={`article-card modern-article article-${
+                      index + 1
+                    }`}
+                  >
+                    <div className="article-image-container">
+                      <img
+                        className="article-image"
+                        alt="Article illustration"
+                        src={article.img}
+                      />
+                      <div className="image-overlay">
+                        <div className="article-category">
+                          {index === 0
+                            ? lang === "vi"
+                              ? "Kinh tế"
+                              : "Economy"
+                            : index === 1
+                            ? lang === "vi"
+                              ? "Chính trị"
+                              : "Politics"
+                            : lang === "vi"
+                            ? "Xã hội"
+                            : "Society"}
+                        </div>
+                        <div className="read-time">
+                          <span className="read-icon">📖</span>
+                          {index === 0
+                            ? "3 min"
+                            : index === 1
+                            ? "4 min"
+                            : "5 min"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="article-content">
+                      <div className="article-header">
+                        <div className="article-number">
+                          {String(index + 1).padStart(2, "0")}
+                        </div>
+                        <h3 className="article-title">{article.title}</h3>
+                      </div>
+
+                      <p className="article-brief">{article.brief}</p>
+
+                      <div className="article-footer">
+                        <div className="article-source">
+                          <span className="source-label">
+                            {article.sourceLabel}
+                          </span>
+                        </div>
+                        <a
+                          className="read-more-btn"
+                          href={article.source}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <span className="btn-text">{S.read}</span>
+                          <span className="btn-arrow">→</span>
+                        </a>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {/* Featured Content */}
+              <div className="featured-content">
+                <div className="featured-header">
+                  <h3 className="featured-title">
+                    {lang === "vi" ? "Khám phá thêm" : "Explore More"}
+                  </h3>
+                  <p className="featured-desc">
+                    {lang === "vi"
+                      ? "Tìm hiểu thêm về các chủ đề chính trị và xã hội thông qua mô phỏng tương tác."
+                      : "Learn more about political and social topics through interactive simulations."}
+                  </p>
+                </div>
+
+                <div className="featured-actions">
+                  <button
+                    className="featured-btn primary"
+                    onClick={() => setPage("sim")}
+                  >
+                    <span className="btn-icon">🎮</span>
+                    {lang === "vi" ? "Mô phỏng Chính sách" : "Policy Simulator"}
+                  </button>
+                  <button
+                    className="featured-btn secondary"
+                    onClick={() => setPage("cases")}
+                  >
+                    <span className="btn-icon">📚</span>
+                    {lang === "vi" ? "Case Studies" : "Case Studies"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function App() {
+        const [lang, setLang] = React.useState("vi");
+        const [page, setPage] = React.useState("home"); // 'home' | 'intro' | 'cases' | 'sim' | 'articles'
+        const S = STRINGS[lang];
+
+        return (
+          <>
+            <NavBar
+              lang={lang}
+              setLang={setLang}
+              page={page}
+              setPage={setPage}
+            />
+            <div className="container">
+              {page === "intro" && (
+                <div className="intro-page">
+                  {/* Intro Hero Section */}
+                  <div className="page-hero">
+                    <div className="page-hero-content">
+                      <div className="hero-highlight">{S.nav.intro}</div>
+                      <h1 className="page-title">{S.introTitle}</h1>
+                      <p className="page-description">
+                        {lang === "en"
+                          ? "Master the art of governance in our comprehensive policy simulation game. Learn how government decisions impact society, economy, and political stability."
+                          : "Làm chủ nghệ thuật quản trị trong game mô phỏng chính sách toàn diện. Tìm hiểu cách quyết định của chính phủ ảnh hưởng đến xã hội, kinh tế và ổn định chính trị."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Intro Content Grid */}
+                  <div className="intro-content">
+                    <div className="intro-grid">
+                      {/* Game Overview */}
+                      <div className="intro-card overview-card">
+                        <div className="card-header">
+                          <div className="card-accent overview-accent"></div>
+                          <h3 className="intro-card-title">
+                            {lang === "en" ? "Game Overview" : "Tổng quan Game"}
+                          </h3>
+                        </div>
+                        <div className="intro-card-content">
+                          <div className="intro-point">
+                            <div className="point-number">01</div>
+                            <div className="point-content">
+                              <h4>
+                                {lang === "en"
+                                  ? "Your Role"
+                                  : "Vai trò của bạn"}
+                              </h4>
+                              <p>{S.intro[0]}</p>
+                            </div>
+                          </div>
+                          <div className="intro-point">
+                            <div className="point-number">02</div>
+                            <div className="point-content">
+                              <h4>
+                                {lang === "en"
+                                  ? "Key Indicators"
+                                  : "Chỉ số chính"}
+                              </h4>
+                              <p>{S.intro[1]}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Gameplay Mechanics */}
+                      <div className="intro-card mechanics-card">
+                        <div className="card-header">
+                          <div className="card-accent mechanics-accent"></div>
+                          <h3 className="intro-card-title">
+                            {lang === "en" ? "How to Play" : "Cách chơi"}
+                          </h3>
+                        </div>
+                        <div className="intro-card-content">
+                          <div className="intro-point">
+                            <div className="point-number">03</div>
+                            <div className="point-content">
+                              <h4>
+                                {lang === "en"
+                                  ? "Social Groups"
+                                  : "Nhóm xã hội"}
+                              </h4>
+                              <p>{S.intro[2]}</p>
+                            </div>
+                          </div>
+                          <div className="intro-point">
+                            <div className="point-number">04</div>
+                            <div className="point-content">
+                              <h4>
+                                {lang === "en"
+                                  ? "Turn System"
+                                  : "Hệ thống lượt"}
+                              </h4>
+                              <p>{S.intro[3]}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Social Dynamics */}
+                      <div className="intro-card dynamics-card">
+                        <div className="card-header">
+                          <div className="card-accent dynamics-accent"></div>
+                          <h3 className="intro-card-title">
+                            {lang === "en"
+                              ? "Political Dynamics"
+                              : "Động lực Chính trị"}
+                          </h3>
+                        </div>
+                        <div className="intro-card-content">
+                          <div className="intro-point">
+                            <div className="point-number">05</div>
+                            <div className="point-content">
+                              <h4>
+                                {lang === "en"
+                                  ? "Social Reactions"
+                                  : "Phản ứng xã hội"}
+                              </h4>
+                              <p>{S.intro[4]}</p>
+                            </div>
+                          </div>
+                          <div className="intro-point">
+                            <div className="point-number">06</div>
+                            <div className="point-content">
+                              <h4>
+                                {lang === "en"
+                                  ? "Government Response"
+                                  : "Phản ứng Chính phủ"}
+                              </h4>
+                              <p>{S.intro[5]}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Win/Lose Conditions */}
+                      <div className="intro-card conditions-card">
+                        <div className="card-header">
+                          <div className="card-accent conditions-accent"></div>
+                          <h3 className="intro-card-title">
+                            {lang === "en"
+                              ? "Victory & Defeat"
+                              : "Thắng & Thua"}
+                          </h3>
+                        </div>
+                        <div className="intro-card-content">
+                          <div className="intro-point success-point">
+                            <div className="point-indicator success-indicator">
+                              ✓
+                            </div>
+                            <div className="point-content">
+                              <h4>
+                                {lang === "en"
+                                  ? "Winning Conditions"
+                                  : "Điều kiện thắng"}
+                              </h4>
+                              <p>{S.intro[6]}</p>
+                            </div>
+                          </div>
+                          <div className="intro-point danger-point">
+                            <div className="point-indicator danger-indicator">
+                              ✗
+                            </div>
+                            <div className="point-content">
+                              <h4>
+                                {lang === "en"
+                                  ? "Losing Conditions"
+                                  : "Điều kiện thua"}
+                              </h4>
+                              <p>{S.intro[7]}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Call to Action */}
+                    <div className="intro-cta">
+                      <div className="cta-content">
+                        <h3 className="cta-title">
+                          {lang === "en"
+                            ? "Ready to Govern?"
+                            : "Sẵn sàng Điều hành?"}
+                        </h3>
+                        <p className="cta-description">
+                          {lang === "en"
+                            ? "Put your political skills to the test. Start your journey as a leader and see if you can balance the competing demands of a modern democracy."
+                            : "Thử thách kỹ năng chính trị của bạn. Bắt đầu hành trình làm lãnh đạo và xem bạn có thể cân bằng các yêu cầu cạnh tranh của một nền dân chủ hiện đại không."}
+                        </p>
+                        <div className="cta-buttons">
+                          <button
+                            className="btn btn-primary"
+                            onClick={() => setPage("sim")}
+                          >
+                            {lang === "en"
+                              ? "Start Simulation"
+                              : "Bắt đầu Mô phỏng"}
+                          </button>
+                          <button
+                            className="btn btn-secondary"
+                            onClick={() => setPage("cases")}
+                          >
+                            {lang === "en"
+                              ? "View Case Studies"
+                              : "Xem Nghiên cứu Trường hợp"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {page === "home" && (
+                <>
+                  {/* Hero Section with Enhanced Design */}
+                  <div className="hero">
+                    <div className="hero-content">
+                      <div className="hero-badge">
+                        <span className="badge-text">{S.shockBadge}</span>
+                      </div>
+                      <h1 className="hero-title">{S.title}</h1>
+                      <p className="hero-description">{S.tagline}</p>
+                      <div className="hero-stats">
+                        <div className="stat-item">
+                          <span className="stat-number">3</span>
+                          <span className="stat-label">Case Studies</span>
+                        </div>
+                        <div className="stat-divider"></div>
+                        <div className="stat-item">
+                          <span className="stat-number">4</span>
+                          <span className="stat-label">Roles</span>
+                        </div>
+                        <div className="stat-divider"></div>
+                        <div className="stat-item">
+                          <span className="stat-number">18</span>
+                          <span className="stat-label">Policies</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="hero-actions">
+                      <button
+                        className="btn btn-primary hero-btn"
+                        onClick={() => setPage("sim")}
+                      >
+                        {S.play}
+                      </button>
+                      <button
+                        className="btn btn-secondary hero-btn"
+                        onClick={() => setPage("cases")}
+                      >
+                        {S.ctaCases}
+                      </button>
+                      <button
+                        className="btn btn-ghost hero-btn"
+                        onClick={() => setPage("articles")}
+                      >
+                        {S.ctaArticles}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Features Grid */}
+                  <div className="features-section">
+                    <h2 className="section-title">
+                      Explore Political Dynamics
+                    </h2>
+                    <div className="features-grid">
+                      {/* Theory Card */}
+                      <div className="feature-card theory-card">
+                        <div className="card-header">
+                          <div className="card-accent theory-accent"></div>
+                        </div>
+                        <div className="card-content">
+                          <h3 className="card-title">{S.theoryTitle}</h3>
+                          <ul className="theory-points">
+                            {S.theoryPoints.map((t, i) => (
+                              <li key={i} className="theory-point">
+                                <span className="point-marker">→</span>
+                                <span className="point-text">{t}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="card-footer">
+                          <span className="card-tag">Political Theory</span>
+                        </div>
+                      </div>
+
+                      {/* Quick Start Card */}
+                      <div className="feature-card quickstart-card">
+                        <div className="card-header">
+                          <div className="card-accent quickstart-accent"></div>
+                        </div>
+                        <div className="card-content">
+                          <h3 className="card-title">
+                            {lang === "vi" ? "Bắt đầu nhanh" : "Quick Start"}
+                          </h3>
+                          <p className="card-description">
+                            {lang === "vi"
+                              ? "Trải nghiệm mô phỏng chính sách và khám phá xung đột lợi ích giữa các nhóm xã hội."
+                              : "Experience policy simulation and explore conflicts of interest between social groups."}
+                          </p>
+                          <div className="feature-list">
+                            <div className="feature-item">
+                              <span className="feature-bullet">•</span>
+                              <span>
+                                {lang === "vi" ? "Chọn vai trò" : "Choose Role"}
+                              </span>
+                            </div>
+                            <div className="feature-item">
+                              <span className="feature-bullet">•</span>
+                              <span>
+                                {lang === "vi"
+                                  ? "Mô phỏng tức thời"
+                                  : "Instant Simulation"}
+                              </span>
+                            </div>
+                            <div className="feature-item">
+                              <span className="feature-bullet">•</span>
+                              <span>
+                                {lang === "vi"
+                                  ? "Phân tích kết quả"
+                                  : "Analyze Results"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="card-footer">
+                          <button
+                            className="card-action-btn"
+                            onClick={() => setPage("sim")}
+                          >
+                            {lang === "vi" ? "Bắt đầu →" : "Get Started →"}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Learning Card */}
+                      <div className="feature-card learning-card">
+                        <div className="card-header">
+                          <div className="card-accent learning-accent"></div>
+                        </div>
+                        <div className="card-content">
+                          <h3 className="card-title">
+                            {lang === "vi"
+                              ? "Tài liệu học tập"
+                              : "Learning Resources"}
+                          </h3>
+                          <p className="card-description">
+                            {lang === "vi"
+                              ? "Khám phá các case study thực tế và bài viết phân tích sâu về chính trị."
+                              : "Explore real case studies and in-depth analysis articles on politics."}
+                          </p>
+                          <div className="resource-stats">
+                            <div className="resource-item">
+                              <span className="resource-count">3</span>
+                              <span className="resource-label">
+                                Case Studies
+                              </span>
+                            </div>
+                            <div className="resource-item">
+                              <span className="resource-count">12</span>
+                              <span className="resource-label">Articles</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="card-footer">
+                          <div className="action-buttons">
+                            <button
+                              className="mini-btn"
+                              onClick={() => setPage("cases")}
+                            >
+                              Cases
+                            </button>
+                            <button
+                              className="mini-btn"
+                              onClick={() => setPage("articles")}
+                            >
+                              Articles
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {page === "cases" && (
+                <>
+                  {/* Case Studies Hero */}
+                  <div className="page-hero cases-hero">
+                    <div className="page-hero-content">
+                      <h1 className="page-title">{S.caseStudiesTitle}</h1>
+                      <p className="page-description">{S.caseStudiesDesc}</p>
+                      <div className="hero-highlight">
+                        <span className="highlight-text">
+                          {lang === "vi"
+                            ? "3 Case Study Thực Tế"
+                            : "3 Real Case Studies"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Case Studies Grid */}
+                  <div className="cases-section">
+                    <div className="cases-grid">
+                      <CaseStudies lang={lang} />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {page === "sim" && (
+                <div className="policy-simulator-page">
+                  {/* Simulator Hero Section */}
+                  <div className="page-hero">
+                    <div className="page-hero-content">
+                      <div className="hero-highlight">{S.nav.sim}</div>
+                      <h1 className="page-title">{S.policySimulatorTitle}</h1>
+                      <p className="page-description">
+                        {S.policySimulatorDesc}
+                      </p>
+                    </div>
+                  </div>
+
+                  <PolicySimulator lang={lang} />
+                </div>
+              )}
+
+              {page === "articles" && (
+                <div className="articles-page">
+                  {/* Articles Hero Section */}
+                  <div className="page-hero articles-hero">
+                    <div className="page-hero-content">
+                      <div className="hero-highlight">{S.nav.articles}</div>
+                      <h1 className="page-title">{S.articlesTitle}</h1>
+                      <p className="page-description">{S.articlesDesc}</p>
+                      <div className="articles-stats">
+                        <div className="articles-stat">
+                          <span className="stat-number">3</span>
+                          <span className="stat-label">
+                            {lang === "vi" ? "Bài viết" : "Articles"}
+                          </span>
+                        </div>
+                        <div className="stat-divider"></div>
+                        <div className="articles-stat">
+                          <span className="stat-number">12</span>
+                          <span className="stat-label">
+                            {lang === "vi" ? "Hình ảnh" : "Images"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Articles lang={lang} />
+                </div>
+              )}
+
+              <div className="footer">Built by group FANMU with ♡</div>
+            </div>
+          </>
+        );
+      }
+
+      const container = document.getElementById("root");
+      if (window.ReactDOM && typeof ReactDOM.createRoot === "function") {
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+      } else if (window.ReactDOM && typeof ReactDOM.render === "function") {
+        ReactDOM.render(<App />, container);
+      } else {
+        const diag = document.getElementById("diag");
+        if (diag) {
+          diag.style.display = "block";
+          diag.textContent =
+            "ReactDOM failed to initialize. Please check CDN connectivity.";
+        }
+      }
+    </script>
+  </body>
+</html>
