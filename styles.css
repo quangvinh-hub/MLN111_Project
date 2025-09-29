@@ -3289,6 +3289,226 @@ small {
   }
 }
 
+/* Enhanced Presentation Page Styles */
+.presentation-page {
+  min-height: 100vh;
+}
+
+.presentation-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.content-overview {
+  margin-bottom: 4rem;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.content-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.content-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border-color: var(--primary);
+}
+
+.content-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.content-number {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.content-info {
+  flex: 1;
+}
+
+.content-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+}
+
+.content-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.content-body {
+  padding: 1.5rem;
+}
+
+.content-points {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.point-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--surface-light);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--primary-light);
+  transition: all 0.2s ease;
+}
+
+.point-item:hover {
+  background: var(--surface-hover);
+  border-left-color: var(--primary);
+}
+
+.point-text {
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Academic Section */
+.academic-section {
+  margin-top: 3rem;
+}
+
+.academic-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+}
+
+.academic-header {
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.academic-title {
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.academic-content {
+  padding: 2rem;
+}
+
+.academic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.academic-item {
+  text-align: center;
+  padding: 1rem;
+  background: var(--surface-light);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+}
+
+.academic-item:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary-light);
+}
+
+.academic-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.academic-value {
+  font-size: 1.1rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Card Color Variations */
+.introduction-card .content-number {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.theory-card .content-number {
+  background: linear-gradient(135deg, #10b981, #047857);
+}
+
+.analysis-card .content-number {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.movement-card .content-number {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.conclusion-card .content-number {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .presentation-content {
+    padding: 1rem;
+  }
+  
+  .content-header {
+    padding: 1rem;
+  }
+  
+  .content-body {
+    padding: 1rem;
+  }
+  
+  .academic-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .content-title {
+    font-size: 1.1rem;
+  }
+}
+
 /* Presentation Page Styles */
 .presentation-page {
   min-height: 100vh;
