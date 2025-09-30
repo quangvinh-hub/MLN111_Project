@@ -181,10 +181,9 @@
             presentation: "Presentation",
             quiz: "Quiz",
           },
-          presentationTitle:
-            "Class vs Nation: When 'National Interest' Conflicts with Citizens",
+          presentationTitle: "Class and Nation in Historical Materialism",
           presentationDesc:
-            "Exploring the contradiction between national interests and class interests through Marx-Lenin theory and real-world social movements.",
+            "Marx-Lenin theory on class struggle, nation, and their relationships",
           conclusionTitle: "Conclusion",
           articlesTitle: "Articles & Illustrations",
           articlesDesc:
@@ -361,9 +360,9 @@
             quiz: "Trắc nghiệm",
           },
           presentationTitle:
-            "Lợi ích quốc gia vs Lợi ích giai cấp: Khi chính sách không đại diện cho mọi công dân",
+            "Giai cấp và dân tộc trong Chủ nghĩa duy vật lịch sử",
           presentationDesc:
-            "Khám phá mâu thuẫn giữa lợi ích quốc gia và lợi ích giai cấp qua lý thuyết Marx-Lenin và các phong trào xã hội thực tế.",
+            "Lý thuyết Marx-Lenin về đấu tranh giai cấp, dân tộc và mối quan hệ",
           conclusionTitle: "Kết luận",
           articlesTitle: "Bài báo & Hình minh hoạ",
           articlesDesc: "Tóm tắt song ngữ kèm nguồn và hình minh hoạ.",
@@ -2687,6 +2686,7 @@
                 <h1 className="page-title">{S.presentationTitle}</h1>
                 <p className="page-description">{S.presentationDesc}</p>
                 <div className="hero-highlight">
+                  <span className="badge-icon">📚</span>
                   <span className="badge-text">
                     {lang === "vi" ? "Môn học: MLN111" : "Subject: MLN111"}
                   </span>
@@ -2699,45 +2699,35 @@
               {/* Mục lục */}
               <div className="content-section">
                 <h2 className="section-title">
-                  {lang === "vi" ? "Nội dung trình bày" : "Table of Contents"}
+                  {lang === "vi"
+                    ? "📋 Nội dung trình bày"
+                    : "📋 Table of Contents"}
                 </h2>
                 <div className="table-of-contents">
                   <div className="toc-item">
                     <span className="toc-number">1</span>
                     <span className="toc-text">
                       {lang === "vi"
-                        ? "Mở đầu – Đặt vấn đề"
-                        : "Introduction – Problem Statement"}
+                        ? "Giai cấp và đấu tranh giai cấp"
+                        : "Class and Class Struggle"}
                     </span>
                   </div>
                   <div className="toc-item">
                     <span className="toc-number">2</span>
                     <span className="toc-text">
-                      {lang === "vi"
-                        ? "Lý thuyết Marx-Lenin về giai cấp và dân tộc"
-                        : "Marx-Lenin Theory on Class and Nation"}
+                      {lang === "vi" ? "Vấn đề dân tộc" : "National Question"}
                     </span>
                   </div>
                   <div className="toc-item">
                     <span className="toc-number">3</span>
                     <span className="toc-text">
                       {lang === "vi"
-                        ? "Phân tích các phong trào xã hội"
-                        : "Analysis of Social Movements"}
+                        ? "Mối quan hệ giữa giai cấp và dân tộc"
+                        : "Relationship between Class and Nation"}
                     </span>
                   </div>
-
                   <div className="toc-item">
                     <span className="toc-number">4</span>
-                    <span className="toc-text">
-                      {lang === "vi"
-                        ? "Lý giải sự xuất hiện phong trào phản kháng"
-                        : "Explaining the emergence of protest movements"}
-                    </span>
-                  </div>
-
-                  <div className="toc-item">
-                    <span className="toc-number">5</span>
                     <span className="toc-text">
                       {lang === "vi" ? "Kết luận" : "Conclusion"}
                     </span>
@@ -2745,163 +2735,20 @@
                 </div>
               </div>
 
-              {/* Section 1: Mở đầu – Đặt vấn đề */}
+              {/* Section 1: Giai cấp và đấu tranh giai cấp */}
               <div className="content-section">
                 <h2 className="section-title">
+                  🏭{" "}
                   {lang === "vi"
-                    ? "1. Mở đầu – Đặt vấn đề"
-                    : "1. Introduction – Problem Statement"}
-                </h2>
-
-                <div className="story-timeline">
-                  <div className="story-chapter">
-                    <div className="chapter-marker">📚</div>
-                    <div className="chapter-content">
-                      <h3 className="subsection-title">
-                        {lang === "vi"
-                          ? "Hiện tượng thực tiễn"
-                          : "Real-world Phenomena"}
-                      </h3>
-                      <p className="narrative-text">
-                        {lang === "vi"
-                          ? "Khi một chính phủ ban hành chính sách lớn như tăng thuế, cải cách hưu trí, hay mở rộng ngân sách quốc phòng, họ thường tuyên bố rằng đó là 'vì lợi ích quốc gia'. Nhưng trên thực tế, không phải mọi công dân đều đồng thuận."
-                          : "When a government implements major policies like tax increases, pension reform, or expanding defense budget, they often claim it's 'for national interest'. But in reality, not all citizens agree."}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="story-chapter">
-                    <div className="chapter-marker">🌍</div>
-                    <div className="chapter-content">
-                      <h3 className="subsection-title">
-                        {lang === "vi"
-                          ? "Những câu chuyện từ thế giới"
-                          : "Stories from Around the World"}
-                      </h3>
-
-                      <div className="example-showcase">
-                        {/* Occupy Wall Street */}
-                        <div className="example-card">
-                          <div className="example-title">
-                            {lang === "vi"
-                              ? "🇺🇸 Phong trào 'Occupy Wall Street' ở Mỹ (2011)"
-                              : "🇺🇸 Occupy Wall Street Movement in USA (2011)"}
-                          </div>
-                          <div className="example-details">
-                            <p>
-                              <strong>
-                                {lang === "vi" ? "Khẩu hiệu:" : "Slogan:"}
-                              </strong>{" "}
-                              {lang === "vi"
-                                ? "'Chúng tôi là 99%' phản đối việc chính sách tài chính và thuế chỉ ưu tiên cho nhóm 1% siêu giàu"
-                                : "'We are the 99%' opposing financial and tax policies that only favor the super-rich 1%"}
-                            </p>
-                            <p>
-                              <strong>
-                                {lang === "vi" ? "Bối cảnh:" : "Context:"}
-                              </strong>{" "}
-                              {lang === "vi"
-                                ? "Sau khủng hoảng 2008, chính phủ cứu trợ các ngân hàng lớn nhưng người dân phải gánh chịu hậu quả"
-                                : "After the 2008 crisis, government bailouts for big banks while citizens bear the consequences"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Yellow Vests */}
-                        <div className="example-card">
-                          <div className="example-title">
-                            {lang === "vi"
-                              ? "🇫🇷 Phong trào 'Áo Vàng' ở Pháp (2018–2019)"
-                              : "🇫🇷 Yellow Vests Movement in France (2018–2019)"}
-                          </div>
-                          <div className="example-details">
-                            <p>
-                              <strong>
-                                {lang === "vi" ? "Nguyên nhân:" : "Cause:"}
-                              </strong>{" "}
-                              {lang === "vi"
-                                ? "Chính phủ tăng thuế nhiên liệu với lý do bảo vệ môi trường, nhưng làm chi phí sinh hoạt của tầng lớp lao động và trung lưu tăng mạnh"
-                                : "Government increased fuel taxes for environmental protection, but raised living costs for workers and middle class"}
-                            </p>
-                            <p>
-                              <strong>
-                                {lang === "vi" ? "Hậu quả:" : "Consequence:"}
-                              </strong>{" "}
-                              {lang === "vi"
-                                ? "Phong trào lan rộng toàn quốc, chính phủ phải rút lại một số biện pháp"
-                                : "Movement spread nationwide, government had to withdraw some measures"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Indonesia */}
-                        <div className="example-card">
-                          <div className="example-title">
-                            {lang === "vi"
-                              ? "🇮🇩 Indonesia (2020, 2023)"
-                              : "🇮🇩 Indonesia (2020, 2023)"}
-                          </div>
-                          <div className="example-details">
-                            <p>
-                              <strong>
-                                {lang === "vi" ? "Sự kiện:" : "Event:"}
-                              </strong>{" "}
-                              {lang === "vi"
-                                ? "Hàng chục nghìn sinh viên và công nhân xuống đường phản đối cải cách luật lao động và lương hưu"
-                                : "Tens of thousands of students and workers protested labor law and pension reforms"}
-                            </p>
-                            <p>
-                              <strong>
-                                {lang === "vi" ? "Lý do:" : "Reason:"}
-                              </strong>{" "}
-                              {lang === "vi"
-                                ? "Cho rằng cải cách có lợi cho doanh nghiệp, bất lợi cho người lao động"
-                                : "Believed reforms favored businesses over workers"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="story-chapter">
-                    <div className="chapter-marker">❓</div>
-                    <div className="chapter-content">
-                      <h3 className="subsection-title">
-                        {lang === "vi"
-                          ? "Câu hỏi kiến tạo"
-                          : "Constructive Question"}
-                      </h3>
-                      <div className="conclusion-highlight">
-                        <div className="conclusion-title">
-                          {lang === "vi"
-                            ? "Liệu 'lợi ích quốc gia' có thực sự là lợi ích của mọi công dân hay không?"
-                            : "Do 'national interests' truly represent the interests of all citizens?"}
-                        </div>
-                        <div className="conclusion-text">
-                          {lang === "vi"
-                            ? "Để trả lời câu hỏi này, chúng ta cần vận dụng lý thuyết Marx-Lenin về mối quan hệ giữa giai cấp và dân tộc."
-                            : "To answer this question, we need to apply Marx-Lenin theory on the relationship between class and nation."}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 2: Lý thuyết Marx-Lenin về giai cấp và dân tộc */}
-              <div className="content-section">
-                <h2 className="section-title">
-                  {lang === "vi"
-                    ? "2. Lý thuyết Marx-Lenin về giai cấp và dân tộc"
-                    : "2. Marx-Lenin Theory on Class and Nation"}
+                    ? "1. Giai cấp và đấu tranh giai cấp"
+                    : "1. Class and Class Struggle"}
                 </h2>
 
                 <div className="subsection">
                   <h3 className="subsection-title">
                     {lang === "vi"
-                      ? "2.1 Khái niệm giai cấp"
-                      : "2.1 Concept of Class"}
+                      ? "1.1 Khái niệm giai cấp"
+                      : "1.1 Concept of Class"}
                   </h3>
                   <div className="content-box">
                     <p className="definition">
@@ -2949,38 +2796,33 @@
                 <div className="subsection">
                   <h3 className="subsection-title">
                     {lang === "vi"
-                      ? "2.2 Lý thuyết về dân tộc"
-                      : "2.2 Theory of Nation"}
+                      ? "1.2 Nguồn gốc của giai cấp"
+                      : "1.2 Origins of Class"}
                   </h3>
                   <div className="content-box">
-                    <p className="definition">
-                      {lang === "vi"
-                        ? "Lenin định nghĩa dân tộc như một cộng đồng người ổn định, được hình thành trong lịch sử, có chung ngôn ngữ, lãnh thổ, đời sống kinh tế và tâm lý, biểu hiện trong nền văn hóa chung."
-                        : "Lenin defined nation as a stable historical community of people with common language, territory, economic life, and psychology manifested in common culture."}
-                    </p>
                     <div className="key-points">
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Yếu tố khách quan:"
-                              : "Objective Elements:"}
-                          </strong>{" "}
+                        <span className="point-icon">🌱</span>
+                        <span>
                           {lang === "vi"
-                            ? "Lãnh thổ, ngôn ngữ, kinh tế chung"
-                            : "Territory, language, common economy"}
+                            ? "Xuất hiện khi lực lượng sản xuất phát triển"
+                            : "Emerges when productive forces develop"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Yếu tố chủ quan:"
-                              : "Subjective Elements:"}
-                          </strong>{" "}
+                        <span className="point-icon">🔄</span>
+                        <span>
                           {lang === "vi"
-                            ? "Tâm lý, văn hóa, ý thức dân tộc"
-                            : "Psychology, culture, national consciousness"}
+                            ? "Phát triển lực lượng sản xuất"
+                            : "Development of productive forces"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">🏛️</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Chế độ tư hữu về tư liệu sản xuất"
+                            : "Private ownership of means of production"}
                         </span>
                       </div>
                     </div>
@@ -2990,175 +2832,92 @@
                 <div className="subsection">
                   <h3 className="subsection-title">
                     {lang === "vi"
-                      ? "2.3 Nhà nước và giai cấp"
-                      : "2.3 State and Class"}
+                      ? "1.3 Đấu tranh giai cấp"
+                      : "1.3 Class Struggle"}
                   </h3>
                   <div className="content-box">
                     <p className="definition">
                       {lang === "vi"
-                        ? "Theo Marx-Lenin, nhà nước ra đời từ mâu thuẫn giai cấp, là công cụ của giai cấp thống trị để duy trì trật tự có lợi cho họ. Do vậy, cái gọi là 'quốc gia' không trung lập, mà thường phản ánh lợi ích của giai cấp cầm quyền."
-                        : "According to Marx-Lenin, the state emerged from class contradictions, serving as a tool of the ruling class to maintain order beneficial to them. Therefore, what is called 'nation' is not neutral, but often reflects the interests of the ruling class."}
+                        ? "Đấu tranh giai cấp là động lực của lịch sử, thúc đẩy xã hội phát triển."
+                        : "Class struggle is the driving force of history, promoting social development."}
                     </p>
                     <div className="key-points">
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi" ? "Bản chất:" : "Nature:"}
-                          </strong>{" "}
+                        <span className="point-icon">⚔️</span>
+                        <span>
                           {lang === "vi"
-                            ? "Nhà nước là sản phẩm của mâu thuẫn giai cấp không thể hòa giải"
-                            : "State is a product of irreconcilable class contradictions"}
+                            ? "Xung đột lợi ích kinh tế"
+                            : "Economic interest conflicts"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi" ? "Chức năng:" : "Function:"}
-                          </strong>{" "}
+                        <span className="point-icon">🏛️</span>
+                        <span>
                           {lang === "vi"
-                            ? "Công cụ của giai cấp thống trị để áp chế giai cấp bị trị"
-                            : "Tool of ruling class to oppress the ruled class"}
+                            ? "Đấu tranh chính trị"
+                            : "Political struggle"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi" ? "Kết luận:" : "Conclusion:"}
-                          </strong>{" "}
+                        <span className="point-icon">💭</span>
+                        <span>
                           {lang === "vi"
-                            ? "'Lợi ích quốc gia' thường phản ánh lợi ích giai cấp cầm quyền"
-                            : "'National interests' often reflect ruling class interests"}
+                            ? "Đấu tranh tư tưởng"
+                            : "Ideological struggle"}
                         </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="subsection">
-                  <h3 className="subsection-title">
-                    {lang === "vi"
-                      ? "2.4 Quan hệ giữa dân tộc và giai cấp"
-                      : "2.4 Relationship Between Nation and Class"}
-                  </h3>
-                  <div className="content-box">
-                    <p className="definition">
-                      {lang === "vi"
-                        ? "Mối quan hệ giữa lợi ích dân tộc và lợi ích giai cấp có thể thống nhất hoặc mâu thuẫn tùy thuộc vào hoàn cảnh lịch sử cụ thể."
-                        : "The relationship between national interests and class interests can be unified or contradictory depending on specific historical circumstances."}
-                    </p>
-
-                    <div
-                      className="example-box"
-                      style={{ marginBottom: "1.5rem" }}
-                    >
-                      <h4>{lang === "vi" ? "Sự thống nhất" : "Unity"}</h4>
-                      <div className="key-points">
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Khi nào:" : "When:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Lợi ích của giai cấp cầm quyền trùng hợp với lợi ích dân tộc"
-                              : "When ruling class interests align with national interests"}
-                          </span>
-                        </div>
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Ví dụ:" : "Example:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Trong kháng chiến chống Pháp, Mỹ ở Việt Nam - mục tiêu giải phóng dân tộc là lợi ích chung của mọi tầng lớp nhân dân"
-                              : "In Vietnam's resistance against France and US - national liberation goal was common interest of all social strata"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="example-box">
-                      <h4>
-                        {lang === "vi" ? "Sự mâu thuẫn" : "Contradiction"}
-                      </h4>
-                      <div className="key-points">
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Khi nào:" : "When:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Giai cấp cầm quyền nhân danh 'lợi ích quốc gia' để che giấu lợi ích riêng"
-                              : "Ruling class uses 'national interests' to disguise private interests"}
-                          </span>
-                        </div>
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Ví dụ:" : "Example:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Trong xã hội tư bản - nhiều chính sách chủ yếu phục vụ tư bản tài chính và tập đoàn lớn"
-                              : "In capitalist society - many policies mainly serve financial capital and large corporations"}
-                          </span>
-                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Section 3: Phân tích thực tiễn */}
+              {/* Section 2: Vấn đề dân tộc */}
               <div className="content-section">
                 <h2 className="section-title">
-                  {lang === "vi"
-                    ? "3. Phân tích thực tiễn"
-                    : "3. Practical Analysis"}
+                  🌍{" "}
+                  {lang === "vi" ? "2. Vấn đề dân tộc" : "2. National Question"}
                 </h2>
 
                 <div className="subsection">
                   <h3 className="subsection-title">
                     {lang === "vi"
-                      ? "3.1 Khi lợi ích giai cấp và dân tộc thống nhất"
-                      : "3.1 When Class and National Interests Unite"}
+                      ? "2.1 Khái niệm dân tộc"
+                      : "2.1 Concept of Nation"}
                   </h3>
                   <div className="content-box">
-                    <div className="example-box">
-                      <h4>
-                        {lang === "vi"
-                          ? "Việt Nam trong kháng chiến"
-                          : "Vietnam in Resistance Wars"}
-                      </h4>
-                      <div className="key-points">
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Bối cảnh:" : "Context:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Lợi ích giành độc lập dân tộc là lợi ích chung, vì mọi giai cấp đều chịu áp bức từ ngoại bang"
-                              : "National independence was common interest as all classes suffered foreign oppression"}
-                          </span>
-                        </div>
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Kết quả:" : "Result:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Sự thống nhất này tạo nên sức mạnh đoàn kết toàn dân tộc"
-                              : "This unity created great national solidarity strength"}
-                          </span>
-                        </div>
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Ý nghĩa:" : "Significance:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Chứng minh rằng khi lợi ích giai cấp và dân tộc trùng hợp, sức mạnh tập thể được phát huy tối đa"
-                              : "Proves that when class and national interests align, collective strength is maximized"}
-                          </span>
-                        </div>
+                    <p className="definition">
+                      {lang === "vi"
+                        ? "Dân tộc là một cộng đồng người ổn định, có chung ngôn ngữ, lãnh thổ, đời sống kinh tế và tâm lý."
+                        : "A nation is a stable community of people sharing language, territory, economic life and psychology."}
+                    </p>
+                    <div className="key-points">
+                      <div className="key-point">
+                        <span className="point-icon">🗣️</span>
+                        <span>
+                          {lang === "vi" ? "Ngôn ngữ chung" : "Common language"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">🗺️</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Lãnh thổ chung"
+                            : "Common territory"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">💼</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Đời sống kinh tế chung"
+                            : "Common economic life"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">❤️</span>
+                        <span>
+                          {lang === "vi" ? "Tâm lý chung" : "Common psychology"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -3167,220 +2926,134 @@
                 <div className="subsection">
                   <h3 className="subsection-title">
                     {lang === "vi"
-                      ? "3.2 Khi lợi ích giai cấp và dân tộc mâu thuẫn"
-                      : "3.2 When Class and National Interests Conflict"}
+                      ? "2.2 Đặc điểm dân tộc Việt Nam"
+                      : "2.2 Vietnamese ethnic characteristics"}
                   </h3>
                   <div className="content-box">
-                    {/* Mỹ 2011 */}
-                    <div
-                      className="example-box"
-                      style={{ marginBottom: "1.5rem" }}
-                    >
-                      <h4>
-                        {lang === "vi"
-                          ? "Mỹ (2011): Phong trào Occupy Wall Street"
-                          : "USA (2011): Occupy Wall Street Movement"}
-                      </h4>
-                      <div className="key-points">
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Nguyên nhân:" : "Cause:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Bùng nổ sau khủng hoảng tài chính 2008. Chính phủ chi hàng nghìn tỷ USD cứu ngân hàng và tập đoàn lớn, trong khi hàng triệu người lao động mất việc, mất nhà"
-                              : "Erupted after 2008 financial crisis. Government spent trillions to bail out banks and corporations while millions of workers lost jobs and homes"}
-                          </span>
-                        </div>
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Khẩu hiệu:" : "Slogan:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "'We are the 99%' tố cáo sự bất công khi 1% dân số nắm giữ hơn 40% tài sản quốc gia"
-                              : "'We are the 99%' exposed injustice where 1% of population holds over 40% of national wealth"}
-                          </span>
-                        </div>
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Ý nghĩa:" : "Significance:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Chứng minh 'lợi ích quốc gia' chỉ là cái cớ để bảo vệ lợi ích giai cấp tư bản tài chính"
-                              : "Proved 'national interests' was just excuse to protect financial capitalist class interests"}
-                          </span>
-                        </div>
+                    <div className="key-points">
+                      <div className="key-point">
+                        <span className="point-icon">🔗</span>
+                        <span>
+                          {lang === "vi"
+                            ? "54 dân tộc cùng sinh sống trên lãnh thổ thống nhất"
+                            : "54 ethnic groups living together on a unified territory"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">🏴</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Quan hệ gắn bó mật thiết trong quá trình dựng nước và giữ nước"
+                            : "Closely related relationship in the process of building and defending the country"}
+                        </span>
+                      </div>
+                      <div className="example-box">
+                        <h4>{lang === "vi" ? "📖 Ví dụ:" : "📖 Examples:"}</h4>
+                        <p>
+                          {lang === "vi"
+                            ? "Tinh thần đoàn kết trong kháng chiến chống Pháp, chống Mỹ"
+                            : "The spirit of solidarity in the resistance war against France and America"}
+                        </p>
                       </div>
                     </div>
+                  </div>
+                </div>
 
-                    {/* Pháp 2018 */}
-                    <div
-                      className="example-box"
-                      style={{ marginBottom: "1.5rem" }}
-                    >
-                      <h4>
-                        {lang === "vi"
-                          ? "Pháp (2018): Phong trào Áo Vàng"
-                          : "France (2018): Yellow Vests Movement"}
-                      </h4>
-                      <div className="key-points">
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Nguyên nhân:" : "Cause:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Chính phủ Macron tăng thuế xăng dầu với lý do 'bảo vệ môi trường' và 'ổn định kinh tế quốc gia'"
-                              : "Macron government increased fuel taxes for 'environmental protection' and 'national economic stability'"}
-                          </span>
-                        </div>
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Thực tế:" : "Reality:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Chi phí này đè nặng lên người lao động, đặc biệt ở vùng nông thôn, trong khi doanh nghiệp và người giàu được ưu đãi"
-                              : "This cost burdened workers, especially in rural areas, while businesses and wealthy got benefits"}
-                          </span>
-                        </div>
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Phản ứng:" : "Response:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Hàng trăm nghìn người mặc áo vàng xuống đường phản đối chính sách thiên vị"
-                              : "Hundreds of thousands in yellow vests protested biased policies"}
-                          </span>
-                        </div>
+                <div className="subsection">
+                  <h3 className="subsection-title">
+                    {lang === "vi"
+                      ? "2.3 Vấn đề dân tộc trong thời đại tư bản chủ nghĩa"
+                      : "2.3 National Question in the Capitalist Era"}
+                  </h3>
+                  <div className="content-box">
+                    <div className="key-points">
+                      <div className="key-point">
+                        <span className="point-icon">🔗</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Liên quan mật thiết với vấn đề giai cấp"
+                            : "Closely related to class issues"}
+                        </span>
                       </div>
-                    </div>
-
-                    {/* Indonesia */}
-                    <div className="example-box">
-                      <h4>
-                        {lang === "vi"
-                          ? "Indonesia (2020, 2023): Biểu tình sinh viên và công nhân"
-                          : "Indonesia (2020, 2023): Student and Worker Protests"}
-                      </h4>
-                      <div className="key-points">
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Chính sách:" : "Policy:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Luật Omnibus Law và cải cách hưu trí được chính phủ nói là 'cải thiện nền kinh tế quốc gia'"
-                              : "Omnibus Law and pension reform claimed by government to 'improve national economy'"}
-                          </span>
-                        </div>
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Thực chất:" : "Reality:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Luật cho phép doanh nghiệp dễ dàng sa thải công nhân, giảm quyền lợi bảo hiểm xã hội"
-                              : "Law allows businesses to easily fire workers, reduce social insurance benefits"}
-                          </span>
-                        </div>
-                        <div className="key-point">
-                          <span className="point-text">
-                            <strong>
-                              {lang === "vi" ? "Kết quả:" : "Result:"}
-                            </strong>{" "}
-                            {lang === "vi"
-                              ? "Hàng loạt cuộc biểu tình nổ ra ở Jakarta và nhiều thành phố lớn"
-                              : "Series of protests erupted in Jakarta and major cities"}
-                          </span>
-                        </div>
+                      <div className="key-point">
+                        <span className="point-icon">🏴</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Quyền tự quyết của các dân tộc"
+                            : "Right of national self-determination"}
+                        </span>
                       </div>
-                    </div>
-
-                    <div
-                      style={{
-                        background:
-                          "linear-gradient(135deg, var(--accent-light), rgba(255, 215, 0, 0.1))",
-                        padding: "1.5rem",
-                        borderRadius: "var(--radius-lg)",
-                        border: "2px solid var(--accent)",
-                        marginTop: "1.5rem",
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: "1.1rem",
-                          fontWeight: "600",
-                          color: "var(--accent-dark)",
-                          margin: 0,
-                          textAlign: "center",
-                        }}
-                      >
-                        {lang === "vi"
-                          ? "💡 Nhận xét chung: Những ví dụ trên chứng minh rằng 'lợi ích quốc gia' thường bị gắn nhãn để hợp thức hóa lợi ích của giai cấp thống trị. Khi sự mâu thuẫn quá lớn, phong trào phản kháng xã hội sẽ bùng nổ."
-                          : "💡 General observation: These examples prove that 'national interests' are often labeled to legitimize ruling class interests. When contradictions become too large, social resistance movements will erupt."}
-                      </p>
+                      <div className="key-point">
+                        <span className="point-icon">🌐</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Chủ nghĩa quốc tế vô sản"
+                            : "Proletarian internationalism"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Section 4: Lý giải sự xuất hiện phong trào phản kháng */}
+              {/* Section 3: Mối quan hệ giai cấp và dân tộc */}
               <div className="content-section">
                 <h2 className="section-title">
+                  🤝{" "}
                   {lang === "vi"
-                    ? "4. Lý giải sự xuất hiện phong trào phản kháng"
-                    : "4. Explaining the Emergence of Resistance Movements"}
+                    ? "3. Mối quan hệ giữa giai cấp và dân tộc"
+                    : "3. Relationship between Class and Nation"}
                 </h2>
 
                 <div className="subsection">
                   <h3 className="subsection-title">
                     {lang === "vi"
-                      ? "4.1 Nguyên nhân sâu xa"
-                      : "4.1 Deep-rooted Causes"}
+                      ? "3.1 Giai cấp và dân tộc"
+                      : "3.1 Class and Nation"}
                   </h3>
                   <div className="content-box">
                     <p className="definition">
                       {lang === "vi"
-                        ? "Mâu thuẫn giữa giai cấp thống trị (chính phủ, tập đoàn, tài phiệt) và giai cấp lao động tạo nên nguyên nhân sâu xa của các phong trào phản kháng."
-                        : "Contradictions between the ruling class (government, corporations, oligarchy) and working class create deep-rooted causes of resistance movements."}
+                        ? "Giai cấp tồn tại trong lòng dân tộc. Quan hệ giữa giai cấp và dân tộc có thể thống nhất hoặc mâu thuẫn tùy thuộc vào hoàn cảnh lịch sử cụ thể."
+                        : "Classes exist within nations. The relationship between class and nation can be unified or contradictory depending on specific historical circumstances."}
                     </p>
                     <div className="key-points">
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Mâu thuẫn cơ bản:"
-                              : "Basic Contradiction:"}
-                          </strong>{" "}
+                        <span className="point-icon">🏘️</span>
+                        <span>
                           {lang === "vi"
-                            ? "Giữa lợi ích của giai cấp thống trị và lợi ích của đại đa số nhân dân"
-                            : "Between ruling class interests and interests of the majority"}
+                            ? "Giai cấp tồn tại trong lòng dân tộc"
+                            : "Classes exist within nations"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi" ? "Bản chất:" : "Nature:"}
-                          </strong>{" "}
+                        <span className="point-icon">⚖️</span>
+                        <span>
                           {lang === "vi"
-                            ? "Giai cấp thống trị sử dụng khái niệm 'lợi ích quốc gia' để che giấu lợi ích riêng"
-                            : "Ruling class uses 'national interests' concept to disguise private interests"}
+                            ? "Lợi ích giai cấp có thể thống nhất hoặc mâu thuẫn với lợi ích dân tộc"
+                            : "Class interests may unite or conflict with national interests"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi" ? "Hậu quả:" : "Consequence:"}
-                          </strong>{" "}
+                        <span className="point-icon">🔄</span>
+                        <span>
                           {lang === "vi"
-                            ? "Tạo ra sự bất bình đẳng và bất công xã hội ngày càng gia tăng"
-                            : "Creates increasing social inequality and injustice"}
+                            ? "Trong đấu tranh giải phóng dân tộc, các giai cấp có thể đoàn kết"
+                            : "In national liberation struggles, classes can unite"}
                         </span>
                       </div>
+                    </div>
+                    <div className="example-box">
+                      <h4>
+                        {lang === "vi"
+                          ? "🇻🇳 Ví dụ Việt Nam:"
+                          : "🇻🇳 Vietnam Example:"}
+                      </h4>
+                      <p>
+                        {lang === "vi"
+                          ? "Trong kháng chiến chống thực dân Pháp và đế quốc Mỹ, giai cấp công nhân, nông dân, trí thức đã đoàn kết tạo nên sức mạnh dân tộc vĩ đại."
+                          : "In the resistance against French colonialism and American imperialism, workers, peasants, and intellectuals united to create great national strength."}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -3388,316 +3061,500 @@
                 <div className="subsection">
                   <h3 className="subsection-title">
                     {lang === "vi"
-                      ? "4.2 Nguyên nhân trực tiếp"
-                      : "4.2 Direct Causes"}
+                      ? "3.2 Dân tộc và nhân loại"
+                      : "3.2 Nation and Humanity"}
                   </h3>
                   <div className="content-box">
+                    <p className="definition">
+                      {lang === "vi"
+                        ? "Dân tộc là một bộ phận của cộng đồng nhân loại. Vấn đề dân tộc trong thời đại ngày nay gắn liền với hòa bình, hợp tác và toàn cầu hóa."
+                        : "Nations are part of the human community. National issues in today's era are linked to peace, cooperation, and globalization."}
+                    </p>
                     <div className="key-points">
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Chính sách bất công:"
-                              : "Unjust Policies:"}
-                          </strong>{" "}
+                        <span className="point-icon">🌍</span>
+                        <span>
                           {lang === "vi"
-                            ? "Tăng thuế cho người dân, cắt giảm phúc lợi xã hội, dồn ngân sách cho quốc phòng thay vì y tế-giáo dục"
-                            : "Tax increases for citizens, social welfare cuts, budget allocation to defense instead of healthcare-education"}
+                            ? "Dân tộc là một bộ phận của cộng đồng nhân loại"
+                            : "Nations are part of human community"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Bất bình đẳng gia tăng:"
-                              : "Growing Inequality:"}
-                          </strong>{" "}
+                        <span className="point-icon">🕊️</span>
+                        <span>
                           {lang === "vi"
-                            ? "Khoảng cách giàu nghèo ngày càng lớn, cơ hội xã hội bị độc quyền"
-                            : "Growing wealth gap, monopolized social opportunities"}
+                            ? "Vấn đề dân tộc gắn liền với hòa bình và hợp tác"
+                            : "National issues linked to peace and cooperation"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Thiếu đại diện:"
-                              : "Lack of Representation:"}
-                          </strong>{" "}
+                        <span className="point-icon">🌐</span>
+                        <span>
                           {lang === "vi"
-                            ? "Người dân cảm thấy tiếng nói của mình không được lắng nghe trong các quyết định chính sách"
-                            : "Citizens feel their voices are not heard in policy decisions"}
+                            ? "Xu thế toàn cầu hóa và hội nhập quốc tế"
+                            : "Globalization and international integration trends"}
                         </span>
                       </div>
+                    </div>
+                    <div className="example-box">
+                      <h4>
+                        {lang === "vi"
+                          ? "📈 Xu thế hiện nay:"
+                          : "📈 Current trends:"}
+                      </h4>
+                      <ul>
+                        <li>
+                          {lang === "vi"
+                            ? "Toàn cầu hóa kinh tế"
+                            : "Economic globalization"}
+                        </li>
+                        <li>
+                          {lang === "vi"
+                            ? "Giao lưu văn hóa"
+                            : "Cultural exchange"}
+                        </li>
+                        <li>
+                          {lang === "vi"
+                            ? "Hội nhập quốc tế"
+                            : "International integration"}
+                        </li>
+                        <li>
+                          {lang === "vi"
+                            ? "Giải quyết các vấn đề toàn cầu"
+                            : "Solving global issues"}
+                        </li>
+                      </ul>
                     </div>
                   </div>
                 </div>
 
                 <div className="subsection">
                   <h3 className="subsection-title">
-                    {lang === "vi" ? "4.3 Hệ quả" : "4.3 Consequences"}
+                    {lang === "vi"
+                      ? "3.3 Quan hệ giai cấp - dân tộc - nhân loại trong bối cảnh hiện nay"
+                      : "3.3 Class-Nation-Humanity Relations in Current Context"}
                   </h3>
                   <div className="content-box">
+                    <p className="definition">
+                      {lang === "vi"
+                        ? "Trong thời đại ngày nay, mối quan hệ giữa giai cấp, dân tộc và nhân loại có tính chất biện chứng phức tạp, đòi hỏi sự giải quyết hài hòa và cân bằng."
+                        : "In today's era, the relationship between class, nation, and humanity has complex dialectical characteristics, requiring harmonious and balanced resolution."}
+                    </p>
                     <div className="key-points">
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Cảm giác bị gạt ra ngoài:"
-                              : "Feeling Excluded:"}
-                          </strong>{" "}
+                        <span className="point-icon">🔗</span>
+                        <span>
                           {lang === "vi"
-                            ? "Người dân cảm thấy bị gạt ra ngoài cái gọi là 'lợi ích quốc gia'"
-                            : "Citizens feel excluded from so-called 'national interests'"}
+                            ? "Mối quan hệ tương tác, tác động lẫn nhau"
+                            : "Interactive, mutually influencing relationships"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Cơ chế tự vệ:"
-                              : "Self-defense Mechanism:"}
-                          </strong>{" "}
+                        <span className="point-icon">⚖️</span>
+                        <span>
                           {lang === "vi"
-                            ? "Các phong trào phản kháng trở thành cơ chế tự vệ của xã hội"
-                            : "Resistance movements become society's self-defense mechanism"}
+                            ? "Cần được giải quyết một cách hài hòa, cân bằng"
+                            : "Need harmonious and balanced resolution"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Thách thức hệ thống:"
-                              : "System Challenge:"}
-                          </strong>{" "}
+                        <span className="point-icon">🌡️</span>
+                        <span>
                           {lang === "vi"
-                            ? "Đặt câu hỏi về tính chính đáng của giai cấp thống trị"
-                            : "Questions the legitimacy of the ruling class"}
+                            ? "Giải quyết các vấn đề toàn cầu: khí hậu, xung đột, di cư"
+                            : "Solving global issues: climate, conflicts, migration"}
                         </span>
+                      </div>
+                    </div>
+                    <div className="example-box">
+                      <h4>
+                        {lang === "vi"
+                          ? "🏛️ Thực tiễn Việt Nam:"
+                          : "🏛️ Vietnamese Practice:"}
+                      </h4>
+                      <p style={{ marginBottom: "1rem" }}>
+                        {lang === "vi"
+                          ? "Ở Việt Nam, xây dựng chủ nghĩa xã hội gắn liền với bảo vệ độc lập dân tộc và hội nhập quốc tế."
+                          : "In Vietnam, building socialism is linked with protecting national independence and international integration."}
+                      </p>
+                      <div
+                        style={{
+                          background:
+                            "linear-gradient(135deg, var(--accent-light), rgba(255, 215, 0, 0.1))",
+                          padding: "1rem",
+                          borderRadius: "var(--radius-lg)",
+                          border: "1px solid var(--accent)",
+                        }}
+                      >
+                        <blockquote
+                          style={{
+                            fontSize: "1rem",
+                            fontStyle: "italic",
+                            color: "var(--accent-dark)",
+                            textAlign: "center",
+                            margin: "0 0 0.5rem 0",
+                          }}
+                        >
+                          "
+                          {lang === "vi"
+                            ? "Không có gì quý hơn độc lập tự do"
+                            : "Nothing is more precious than independence and freedom"}
+                          "
+                        </blockquote>
+                        <p
+                          style={{
+                            textAlign: "center",
+                            fontSize: "0.9rem",
+                            color: "var(--text-secondary)",
+                            margin: 0,
+                          }}
+                        >
+                          - {lang === "vi" ? "Hồ Chí Minh" : "Ho Chi Minh"}
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Section 5: Kết luận */}
+              {/* Section 4: Kết luận */}
               <div className="content-section">
                 <h2 className="section-title">
-                  {lang === "vi"
-                    ? "5. Kết luận - Trả lời câu hỏi"
-                    : "5. Conclusion - Answering the Question"}
+                  💡 {lang === "vi" ? "4. Kết luận" : "4. Conclusion"}
                 </h2>
+                <p
+                  className="definition"
+                  style={{
+                    fontSize: "1.1rem",
+                    textAlign: "center",
+                    marginBottom: "2rem",
+                    fontWeight: "500",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  {lang === "vi"
+                    ? "Những kết luận quan trọng từ nghiên cứu về mối quan hệ giai cấp - dân tộc - nhân loại"
+                    : "Important conclusions from the study of class - nation - humanity relationships"}
+                </p>
 
                 <div className="subsection">
                   <h3 className="subsection-title">
                     {lang === "vi"
-                      ? "5.1 Trả lời câu hỏi đặt ra"
-                      : "5.1 Answering the Posed Question"}
-                  </h3>
-                  <div className="content-box">
-                    <div
-                      style={{
-                        background:
-                          "linear-gradient(135deg, var(--accent-light), rgba(255, 215, 0, 0.1))",
-                        padding: "2rem",
-                        borderRadius: "var(--radius-lg)",
-                        border: "3px solid var(--accent)",
-                        textAlign: "center",
-                        marginBottom: "2rem",
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: "1.4rem",
-                          fontWeight: "700",
-                          color: "var(--accent-dark)",
-                          margin: 0,
-                          lineHeight: "1.5",
-                        }}
-                      >
-                        {lang === "vi"
-                          ? "🎯 KẾT LUẬN: 'Lợi ích quốc gia' KHÔNG mặc nhiên là lợi ích của mọi công dân"
-                          : "🎯 CONCLUSION: 'National interests' are NOT automatically the interests of all citizens"}
-                      </p>
-                    </div>
-
-                    <div className="key-points">
-                      <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Trong xã hội có giai cấp:"
-                              : "In class society:"}
-                          </strong>{" "}
-                          {lang === "vi"
-                            ? "'Quốc gia' thường được định hình bởi giai cấp cầm quyền"
-                            : "'Nation' is often shaped by the ruling class"}
-                        </span>
-                      </div>
-                      <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Khi thống nhất:"
-                              : "When unified:"}
-                          </strong>{" "}
-                          {lang === "vi"
-                            ? "Lợi ích giai cấp cầm quyền và lợi ích dân tộc thống nhất → nhân dân đồng lòng"
-                            : "Ruling class and national interests align → people unite"}
-                        </span>
-                      </div>
-                      <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Khi mâu thuẫn:"
-                              : "When contradictory:"}
-                          </strong>{" "}
-                          {lang === "vi"
-                            ? "Hai lợi ích này mâu thuẫn → xuất hiện phong trào phản kháng"
-                            : "These interests conflict → resistance movements emerge"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="subsection">
-                  <h3 className="subsection-title">
-                    {lang === "vi"
-                      ? "5.2 Bài học thực tiễn"
-                      : "5.2 Practical Lessons"}
-                  </h3>
-                  <div className="content-box">
-                    <div
-                      style={{
-                        background: "var(--surface-light)",
-                        padding: "1.5rem",
-                        borderRadius: "var(--radius-lg)",
-                        border: "2px solid var(--primary)",
-                        marginBottom: "1.5rem",
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: "1.2rem",
-                          fontWeight: "600",
-                          color: "var(--primary)",
-                          margin: "0 0 1rem 0",
-                          textAlign: "center",
-                        }}
-                      >
-                        {lang === "vi"
-                          ? "📚 Bài học quan trọng"
-                          : "📚 Important Lesson"}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "1.1rem",
-                          color: "var(--text)",
-                          margin: 0,
-                          textAlign: "center",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {lang === "vi"
-                          ? "Một chính sách thực sự là 'lợi ích quốc gia' phải xuất phát từ nhu cầu của đại đa số nhân dân, chứ không chỉ phục vụ thiểu số."
-                          : "A policy that is truly 'national interest' must originate from the needs of the vast majority of people, not just serve the minority."}
-                      </p>
-                    </div>
-
-                    <div className="key-points">
-                      <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi" ? "Cho người dân:" : "For citizens:"}
-                          </strong>{" "}
-                          {lang === "vi"
-                            ? "Cần có tư duy phê phán khi đánh giá các chính sách được gắn nhãn 'lợi ích quốc gia'"
-                            : "Need critical thinking when evaluating policies labeled as 'national interests'"}
-                        </span>
-                      </div>
-                      <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Cho nhà hoạch định chính sách:"
-                              : "For policymakers:"}
-                          </strong>{" "}
-                          {lang === "vi"
-                            ? "Phải đảm bảo chính sách thực sự phục vụ lợi ích của đa số, không chỉ của nhóm quyền lực"
-                            : "Must ensure policies truly serve majority interests, not just powerful groups"}
-                        </span>
-                      </div>
-                      <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Cho nghiên cứu xã hội:"
-                              : "For social research:"}
-                          </strong>{" "}
-                          {lang === "vi"
-                            ? "Cần áp dụng phương pháp phân tích giai cấp để hiểu bản chất thực sự của các hiện tượng xã hội"
-                            : "Need to apply class analysis methods to understand true nature of social phenomena"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="subsection">
-                  <h3 className="subsection-title">
-                    {lang === "vi"
-                      ? "5.3 Ý nghĩa của lý thuyết Marx-Lenin"
-                      : "5.3 Significance of Marx-Lenin Theory"}
+                      ? "4.1 Đấu tranh giai cấp là động lực của lịch sử"
+                      : "4.1 Class struggle is the driving force of history"}
                   </h3>
                   <div className="content-box">
                     <p className="definition">
                       {lang === "vi"
-                        ? "Lý thuyết Marx-Lenin về mối quan hệ giai cấp và dân tộc vẫn có giá trị thực tiễn cao trong việc phân tích các hiện tượng chính trị-xã hội đương đại."
-                        : "Marx-Lenin theory on class and nation relationships still has high practical value in analyzing contemporary political-social phenomena."}
+                        ? "Đấu tranh giai cấp là động lực trực tiếp thúc đẩy sự phát triển của xã hội loài người qua các giai đoạn lịch sử."
+                        : "Class struggle is the direct driving force that propels the development of human society through historical stages."}
                     </p>
                     <div className="key-points">
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Công cụ phân tích:"
-                              : "Analytical tool:"}
-                          </strong>{" "}
+                        <span className="point-icon">⚔️</span>
+                        <span>
                           {lang === "vi"
-                            ? "Giúp nhận diện bản chất giai cấp ẩn sau các khẩu hiệu 'lợi ích quốc gia'"
-                            : "Helps identify class nature behind 'national interest' slogans"}
+                            ? "Động lực trực tiếp trong xã hội có đối kháng giai cấp"
+                            : "Direct driving force in societies with class antagonism"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Hướng dẫn thực tiễn:"
-                              : "Practical guidance:"}
-                          </strong>{" "}
+                        <span className="point-icon">🔄</span>
+                        <span>
                           {lang === "vi"
-                            ? "Cung cấp phương pháp luận để xây dựng chính sách thực sự vì nhân dân"
-                            : "Provides methodology to build policies truly for the people"}
+                            ? "Thúc đẩy chuyển đổi từ giai đoạn này sang giai đoạn khác"
+                            : "Drives transition from one stage to another"}
                         </span>
                       </div>
                       <div className="key-point">
-                        <span className="point-text">
-                          <strong>
-                            {lang === "vi"
-                              ? "Giá trị hiện đại:"
-                              : "Modern value:"}
-                          </strong>{" "}
+                        <span className="point-icon">📈</span>
+                        <span>
                           {lang === "vi"
-                            ? "Vẫn phù hợp để hiểu các phong trào xã hội và cuộc khủng hoảng chính trị hiện tại"
-                            : "Still relevant for understanding current social movements and political crises"}
+                            ? "Quyết định sự tiến bộ của xã hội loài người"
+                            : "Determines the progress of human society"}
                         </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="subsection">
+                  <h3 className="subsection-title">
+                    {lang === "vi"
+                      ? "4.2 Dân tộc là hình thức cộng đồng xã hội cao, bền vững"
+                      : "4.2 Nation is a high, sustainable form of social community"}
+                  </h3>
+                  <div className="content-box">
+                    <p className="definition">
+                      {lang === "vi"
+                        ? "Dân tộc là cộng đồng người được hình thành trong lịch sử với những đặc trưng cơ bản và tính bền vững cao."
+                        : "Nation is a community of people formed in history with basic characteristics and high sustainability."}
+                    </p>
+                    <div className="key-points">
+                      <div className="key-point">
+                        <span className="point-icon">🏛️</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Hình thức tổ chức xã hội ở mức độ cao"
+                            : "High-level form of social organization"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">⏳</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Bền vững qua thời gian và không gian"
+                            : "Sustainable through time and space"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">🌍</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Có vai trò quan trọng trong phát triển nhân loại"
+                            : "Plays important role in human development"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="subsection">
+                  <h3 className="subsection-title">
+                    {lang === "vi"
+                      ? "4.3 Quan hệ biện chứng cần giải quyết hài hòa"
+                      : "4.3 Dialectical relationships need harmonious resolution"}
+                  </h3>
+                  <div className="content-box">
+                    <p className="definition">
+                      {lang === "vi"
+                        ? "Trong thời đại ngày nay, giai cấp - dân tộc - nhân loại có quan hệ biện chứng phức tạp, đòi hỏi sự giải quyết hài hòa và cân bằng."
+                        : "In today's era, class - nation - humanity have complex dialectical relationships, requiring harmonious and balanced resolution."}
+                    </p>
+                    <div className="key-points">
+                      <div className="key-point">
+                        <span className="point-icon">🔗</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Mối quan hệ tương tác, tác động lẫn nhau"
+                            : "Interactive, mutually influencing relationships"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">⚖️</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Cần được giải quyết một cách hài hòa, cân bằng"
+                            : "Need harmonious and balanced resolution"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">🌡️</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Giải quyết các vấn đề toàn cầu: khí hậu, xung đột, di cư"
+                            : "Solving global issues: climate, conflicts, migration"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="subsection">
+                  <h3 className="subsection-title">
+                    {lang === "vi"
+                      ? "4.4 Thực tiễn Việt Nam: CNXH gắn với đại đoàn kết dân tộc"
+                      : "4.4 Vietnamese Practice: Socialism linked with great national unity"}
+                  </h3>
+                  <div className="content-box">
+                    <p className="definition">
+                      {lang === "vi"
+                        ? "Ở Việt Nam, xây dựng chủ nghĩa xã hội gắn liền với đại đoàn kết dân tộc và hội nhập quốc tế, thể hiện sự kết hợp hài hòa giữa lợi ích giai cấp và lợi ích dân tộc."
+                        : "In Vietnam, building socialism is linked with great national unity and international integration, demonstrating harmonious combination of class and national interests."}
+                    </p>
+                    <div className="key-points">
+                      <div className="key-point">
+                        <span className="point-icon">🏗️</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Xây dựng CNXH theo định hướng xã hội chủ nghĩa"
+                            : "Building socialism with socialist orientation"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">🤝</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Đại đoàn kết toàn dân tộc trong xây dựng và bảo vệ Tổ quốc"
+                            : "Great national unity in building and defending the Fatherland"}
+                        </span>
+                      </div>
+                      <div className="key-point">
+                        <span className="point-icon">🌏</span>
+                        <span>
+                          {lang === "vi"
+                            ? "Hội nhập quốc tế toàn diện và sâu rộng"
+                            : "Comprehensive and extensive international integration"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="example-box">
+                      <h4>
+                        {lang === "vi"
+                          ? "💭 Tư tưởng Hồ Chí Minh:"
+                          : "💭 Ho Chi Minh's Thought:"}
+                      </h4>
+                      <div
+                        style={{
+                          background:
+                            "linear-gradient(135deg, var(--accent-light), rgba(255, 215, 0, 0.1))",
+                          padding: "1.5rem",
+                          borderRadius: "var(--radius-lg)",
+                          border: "2px solid var(--accent)",
+                          marginTop: "1rem",
+                        }}
+                      >
+                        <blockquote
+                          style={{
+                            fontSize: "1.2rem",
+                            fontWeight: "600",
+                            color: "var(--accent-dark)",
+                            textAlign: "center",
+                            margin: "0 0 1rem 0",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          "
+                          {lang === "vi"
+                            ? "Không có gì quý hơn độc lập tự do"
+                            : "Nothing is more precious than independence and freedom"}
+                          "
+                        </blockquote>
+                        <p
+                          style={{
+                            textAlign: "center",
+                            fontSize: "1rem",
+                            color: "var(--text)",
+                            margin: 0,
+                          }}
+                        >
+                          {lang === "vi"
+                            ? "Kết hợp hài hòa lợi ích giai cấp công nhân và lợi ích dân tộc trong thời kỳ xây dựng và bảo vệ Tổ quốc"
+                            : "Harmoniously combining working class interests and national interests during the period of building and defending the Fatherland"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="example-box">
+                      <h4>
+                        {lang === "vi"
+                          ? "🏛️ Thực tiễn cụ thể:"
+                          : "🏛️ Specific practices:"}
+                      </h4>
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns:
+                            "repeat(auto-fit, minmax(250px, 1fr))",
+                          gap: "1rem",
+                          marginTop: "1rem",
+                        }}
+                      >
+                        <div
+                          style={{
+                            padding: "1rem",
+                            background: "var(--surface-light)",
+                            borderRadius: "var(--radius-lg)",
+                            border: "1px solid var(--border-light)",
+                          }}
+                        >
+                          <strong
+                            style={{
+                              color: "var(--accent)",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.5rem",
+                              marginBottom: "0.5rem",
+                            }}
+                          >
+                            <span>🏛️</span>
+                            {lang === "vi"
+                              ? "Chính sách dân tộc"
+                              : "Ethnic policies"}
+                          </strong>
+                          <ul style={{ margin: 0, paddingLeft: "1rem" }}>
+                            <li>
+                              {lang === "vi"
+                                ? "Đại đoàn kết toàn dân tộc"
+                                : "Great national unity"}
+                            </li>
+                            <li>
+                              {lang === "vi"
+                                ? "Phát triển vùng dân tộc thiểu số"
+                                : "Ethnic minority development"}
+                            </li>
+                          </ul>
+                        </div>
+                        <div
+                          style={{
+                            padding: "1rem",
+                            background: "var(--surface-light)",
+                            borderRadius: "var(--radius-lg)",
+                            border: "1px solid var(--border-light)",
+                          }}
+                        >
+                          <strong
+                            style={{
+                              color: "var(--accent)",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.5rem",
+                              marginBottom: "0.5rem",
+                            }}
+                          >
+                            <span>🌏</span>
+                            {lang === "vi"
+                              ? "Hội nhập quốc tế"
+                              : "International integration"}
+                          </strong>
+                          <ul style={{ margin: 0, paddingLeft: "1rem" }}>
+                            <li>ASEAN, WTO, CPTPP</li>
+                            <li>
+                              {lang === "vi"
+                                ? "Quan hệ đối tác chiến lược"
+                                : "Strategic partnerships"}
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div
+              className="footer"
+              style={{
+                marginTop: "4rem",
+                padding: "2rem",
+                textAlign: "center",
+                borderTop: "1px solid var(--border-light)",
+              }}
+            >
+              <p style={{ margin: 0, color: "var(--text-muted)" }}>
+                {lang === "vi" ? "Bài thuyết trình:" : "Presentation:"}{" "}
+                <strong>{S.presentationTitle}</strong> |
+                {lang === "vi" ? "Môn học:" : "Subject:"}{" "}
+                <strong>
+                  {lang === "vi"
+                    ? "Chủ nghĩa duy vật lịch sử (MLN111)"
+                    : "Historical Materialism (MLN111)"}
+                </strong>{" "}
+                |{lang === "vi" ? "Năm học:" : "Academic year:"}{" "}
+                <strong>2024-2025</strong>
+              </p>
             </div>
           </div>
         );
